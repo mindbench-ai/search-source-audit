@@ -16,7 +16,8 @@ Design notes:
 
 * Each provider's default temperature is left as-is. Repeats are there to measure
   how much retrieval varies between identical calls, so pinning temperature to 0
-  would remove the thing being measured.
+  would remove the thing being measured. The effective sampling config is recorded
+  per call under the "sampling" key (see providers.make_caller).
 
 * A cell that returns zero sources is recorded as-is and never retried. Retrying
   until sources appear drops the zeros and makes the citation rate impossible to

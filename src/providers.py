@@ -94,6 +94,16 @@ class Provider:
         """Provider-billed total, if the API reports one. None means compute it."""
         return None
 
+    def reported_sampling(self, raw: dict) -> dict:
+        """Effective sampling parameters the API echoes back, if any.
+
+        Some APIs (OpenAI Responses) return the temperature/top_p actually used;
+        others (Gemini generateContent, Perplexity) return nothing, in which case
+        this is empty and the value is the provider/model default. See
+        make_caller, which records this alongside what the caller requested.
+        """
+        return {}
+
     def is_indirect_url(self, url: str | None) -> bool:
         """True if `url` is a redirect/proxy that hides the real publisher."""
         return False
@@ -173,6 +183,12 @@ class OpenAIProvider(Provider):
             "input_tokens": u.get("input_tokens", 0),
             "output_tokens": u.get("output_tokens", 0),
         }
+
+    def reported_sampling(self, raw):
+        # The Responses API echoes the sampling config actually applied.
+        return {k: raw[k] for k in
+                ("temperature", "top_p", "frequency_penalty", "presence_penalty")
+                if k in raw}
 
 
 class GeminiProvider(Provider):
@@ -352,6 +368,20 @@ def provider_for(model_key: str) -> Provider:
     return PROVIDERS[load_models()[model_key]["provider"]]
 
 
+_SAMPLING_KEYS = ("temperature", "top_p", "top_k", "frequency_penalty", "presence_penalty")
+
+
+def _requested_sampling(provider_name: str, options: dict) -> dict:
+    """Sampling parameters the caller set via options.extra_payload, if any.
+
+    Empty means none were set and the provider/model default applied. Gemini nests
+    generation parameters under generationConfig, so look there for that provider.
+    """
+    payload = (options or {}).get("extra_payload") or {}
+    src = payload.get("generationConfig", payload) if provider_name == "gemini" else payload
+    return {k: src[k] for k in _SAMPLING_KEYS if k in src}
+
+
 def make_caller():
     """Return the function runner.py invokes per cell."""
     models = load_models()
@@ -366,9 +396,10 @@ def make_caller():
                 f"exclude it from the search_off condition"
             )
 
+        options = spec.get("options") or {}
         started = time.time()
         text, sources, raw = provider.call(
-            spec["model_id"], prompt["text"], search, spec.get("options") or {}
+            spec["model_id"], prompt["text"], search, options
         )
         return {
             "cell_id": cell.cell_id,
@@ -384,6 +415,14 @@ def make_caller():
             "run_index": cell.run_index,
             "text": text,
             "structured_sources": sources,
+            # Sampling config, so it need not be reconstructed from vendor docs later.
+            # `requested` is what the caller set (empty means the provider default
+            # applied); `reported` is what the API echoed back (empty for providers
+            # that don't return it).
+            "sampling": {
+                "requested": _requested_sampling(spec["provider"], options),
+                "reported": provider.reported_sampling(raw),
+            },
             "latency_ms": int((time.time() - started) * 1000),
             "raw": raw,
         }
