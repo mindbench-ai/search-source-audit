@@ -3,346 +3,505 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Prompt Editor — mindbench-api-search-audit</title>
+<title>Configure experiment — mindbench-api-search-audit</title>
 <style>
   :root {
-    --bg: #ffffff; --fg: #16181d; --muted: #5c6370; --line: #e2e5ea;
-    --panel: #f6f7f9; --accent: #2f6feb; --warn: #a8600a; --warn-bg: #fff6e6;
-    --err: #b4232c; --err-bg: #fdeaea; --ok: #1a7f4b;
+    --bg:#fff; --fg:#16181d; --muted:#5c6370; --line:#e2e5ea; --panel:#f6f7f9;
+    --card:#fff; --accent:#2f6feb; --accent-fg:#fff; --warn:#a8600a; --warn-bg:#fff6e6;
+    --err:#b4232c; --err-bg:#fdeaea; --ok:#1a7f4b; --ok-bg:#eafaf0;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #14161a; --fg: #e8eaed; --muted: #9aa3af; --line: #2b2f36;
-      --panel: #1c1f25; --accent: #6f9dff; --warn: #e0a54a; --warn-bg: #33280f;
-      --err: #ff8189; --err-bg: #3a1a1d; --ok: #52c98a;
+      --bg:#14161a; --fg:#e8eaed; --muted:#9aa3af; --line:#2b2f36; --panel:#1c1f25;
+      --card:#191c21; --accent:#6f9dff; --accent-fg:#0b1020; --warn:#e0a54a; --warn-bg:#33280f;
+      --err:#ff8189; --err-bg:#3a1a1d; --ok:#52c98a; --ok-bg:#12291d;
     }
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--bg); color: var(--fg);
-    font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  }
-  header {
-    position: sticky; top: 0; z-index: 10; background: var(--bg);
-    border-bottom: 1px solid var(--line); padding: 14px 20px;
-  }
-  h1 { font-size: 16px; margin: 0 0 2px; font-weight: 650; }
-  .sub { color: var(--muted); font-size: 12.5px; }
-  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
-  button, select, .filebtn {
-    font: inherit; padding: 6px 12px; border-radius: 7px;
-    border: 1px solid var(--line); background: var(--panel); color: var(--fg);
-    cursor: pointer;
-  }
-  button:hover, .filebtn:hover { border-color: var(--accent); }
-  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  button:disabled { opacity: .45; cursor: not-allowed; }
-  input[type=file] { display: none; }
-  main { padding: 18px 20px 80px; }
-  .stats { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: 12.5px; }
-  .stats b { color: var(--fg); font-variant-numeric: tabular-nums; }
-  .msgs { margin: 14px 0; display: grid; gap: 8px; }
-  .msg { padding: 9px 12px; border-radius: 7px; font-size: 13px; border: 1px solid; }
-  .msg.err { background: var(--err-bg); border-color: var(--err); color: var(--err); }
-  .msg.warn { background: var(--warn-bg); border-color: var(--warn); color: var(--warn); }
-  .msg.ok { background: transparent; border-color: var(--ok); color: var(--ok); }
-  .langgroup { margin-bottom: 26px; }
-  .langhead {
-    display: flex; align-items: baseline; gap: 10px;
-    padding: 7px 0; border-bottom: 1px solid var(--line); margin-bottom: 8px;
-  }
-  .langhead h2 { font-size: 13.5px; margin: 0; font-weight: 650; }
-  .langhead .n { color: var(--muted); font-size: 12px; }
-  .tablewrap { overflow-x: auto; }
-  table { border-collapse: collapse; width: 100%; min-width: 900px; }
-  th {
-    text-align: left; font-size: 11px; text-transform: uppercase;
-    letter-spacing: .04em; color: var(--muted); font-weight: 600;
-    padding: 4px 6px; white-space: nowrap;
-  }
-  td { padding: 3px 6px; vertical-align: top; border-top: 1px solid var(--line); }
-  td input, td textarea, td select {
-    width: 100%; font: inherit; padding: 5px 7px; border-radius: 6px;
-    border: 1px solid transparent; background: var(--panel); color: var(--fg);
-    resize: vertical;
-  }
-  td input:focus, td textarea:focus, td select:focus {
-    outline: none; border-color: var(--accent); background: var(--bg);
-  }
-  td.bad input, td.bad textarea { border-color: var(--err); }
-  .pid { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); white-space: nowrap; padding-top: 11px; }
-  .rowbtn { padding: 4px 8px; font-size: 12px; }
-  .empty { color: var(--muted); padding: 40px 0; text-align: center; }
-  .hint { color: var(--muted); font-size: 12px; margin-top: 6px; }
-  code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--panel); padding: 1px 5px; border-radius: 4px; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+    font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+  header { position:sticky; top:0; z-index:10; background:var(--bg);
+    border-bottom:1px solid var(--line); padding:12px 20px; }
+  h1 { font-size:15px; margin:0; font-weight:650; }
+  .sub { color:var(--muted); font-size:12.5px; margin-top:2px; }
+  .tabs { display:flex; gap:4px; margin-top:12px; }
+  .tab { padding:7px 16px; border:1px solid var(--line); border-bottom:none;
+    border-radius:8px 8px 0 0; background:var(--panel); cursor:pointer; font:inherit;
+    color:var(--muted); margin-bottom:-1px; }
+  .tab.active { background:var(--bg); color:var(--fg); font-weight:600;
+    border-bottom:1px solid var(--bg); }
+  main { padding:20px; max-width:960px; margin:0 auto; }
+  .banner { padding:11px 14px; border-radius:8px; margin-bottom:16px; font-size:13px;
+    border:1px solid; }
+  .banner.warn { background:var(--warn-bg); border-color:var(--warn); color:var(--warn); }
+  .banner code { background:rgba(128,128,128,.18); padding:1px 6px; border-radius:4px; }
+  button { font:inherit; padding:7px 13px; border-radius:8px; border:1px solid var(--line);
+    background:var(--panel); color:var(--fg); cursor:pointer; }
+  button:hover { border-color:var(--accent); }
+  button.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-fg); font-weight:600; }
+  button.ghost { background:transparent; }
+  button.sm { padding:4px 9px; font-size:12.5px; }
+  button.danger:hover { border-color:var(--err); color:var(--err); }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  label { font-size:12px; color:var(--muted); display:block; margin-bottom:3px; }
+  input[type=text], input[type=number], textarea, select {
+    font:inherit; width:100%; padding:7px 9px; border-radius:7px; border:1px solid var(--line);
+    background:var(--card); color:var(--fg); }
+  input:focus, textarea:focus, select:focus { outline:none; border-color:var(--accent); }
+  textarea { resize:vertical; min-height:52px; line-height:1.45; }
+  .field.bad input, .field.bad textarea { border-color:var(--err); }
+  .row { display:flex; gap:12px; flex-wrap:wrap; }
+  .row > .field { flex:1; min-width:120px; }
+  .field { margin-bottom:0; }
+  .panelbar { display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  .panelbar .spacer { flex:1; }
+  .msgs { display:grid; gap:7px; margin-bottom:14px; }
+  .msg { padding:8px 11px; border-radius:7px; font-size:12.5px; border:1px solid; }
+  .msg.err { background:var(--err-bg); border-color:var(--err); color:var(--err); }
+  .msg.warn { background:var(--warn-bg); border-color:var(--warn); color:var(--warn); }
+  .msg.ok { background:var(--ok-bg); border-color:var(--ok); color:var(--ok); }
+  .status { font-size:12.5px; }
+  .status.ok { color:var(--ok); } .status.err { color:var(--err); }
+
+  /* language + question cards */
+  .lang { border:1px solid var(--line); border-radius:12px; margin-bottom:16px; overflow:hidden; }
+  .lang-head { display:flex; gap:12px; align-items:flex-end; padding:12px 14px;
+    background:var(--panel); border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .lang-head .code { width:70px; flex:none; } .lang-head .name { width:150px; flex:none; }
+  .lang-head .tier { width:110px; flex:none; }
+  .lang-head .spacer { flex:1; }
+  .lang-head .count { color:var(--muted); font-size:12px; align-self:center; }
+  .q { padding:13px 14px; border-top:1px solid var(--line); }
+  .q:first-child { border-top:none; }
+  .q-top { display:flex; gap:12px; align-items:flex-end; margin-bottom:10px; }
+  .q-top .topic { flex:1.2; } .q-top .cat { flex:1; }
+  .variants { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:640px){ .variants { grid-template-columns:1fr; } }
+  .pid { font:11px ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--muted); margin-top:4px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pid.dupe { color:var(--err); }
+
+  /* models table */
+  table.models { width:100%; border-collapse:collapse; margin:6px 0 12px; }
+  table.models th { text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--muted); font-weight:600; padding:5px 7px; }
+  table.models td { padding:4px 7px; border-top:1px solid var(--line); vertical-align:middle; }
+  table.models td.ck { text-align:center; width:1%; white-space:nowrap; }
+  .card { border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:16px;
+    background:var(--card); }
+  .card h2 { font-size:13px; margin:0 0 12px; font-weight:650; }
+  .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  @media (max-width:640px){ .grid4 { grid-template-columns:1fr 1fr; } }
+  .checks { display:flex; gap:16px; align-items:center; }
+  .checks label { display:flex; gap:6px; align-items:center; margin:0; color:var(--fg); font-size:13px; }
+  .hint { color:var(--muted); font-size:12px; margin-top:5px; }
 </style>
 </head>
 <body>
 <header>
-  <h1>Prompt Editor</h1>
-  <div class="sub">Edits <code>prompts.json</code> for the mindbench-api-search-audit sweep.</div>
-  <div class="bar">
-    <label class="filebtn">Load prompts.json<input type="file" id="file" accept=".json,application/json"></label>
-    <button id="reload">Reload from server</button>
-    <button id="add">+ Add prompt</button>
-    <select id="filter"><option value="">All languages</option></select>
-    <span style="flex:1"></span>
-    <button id="download" class="primary" disabled>Download prompts.json</button>
-  </div>
-  <div class="hint">
-    Opened from <code>file://</code>? Use “Load prompts.json”. Served via
-    <code>python3 -m http.server</code>? “Reload from server” works too.
-    Downloads land in your Downloads folder — move the file over the repo copy to apply.
+  <h1>Configure experiment</h1>
+  <div class="sub" id="subtitle">mindbench-api-search-audit</div>
+  <div class="tabs">
+    <button class="tab active" data-tab="experiment">Experiment</button>
+    <button class="tab" data-tab="prompts">Prompts</button>
   </div>
 </header>
 
 <main>
-  <div class="stats" id="stats"></div>
-  <div class="msgs" id="msgs"></div>
-  <div id="rows"><div class="empty">No prompts loaded yet.</div></div>
+  <div id="offline" class="banner warn" style="display:none">
+    Opened as a file, so changes can't be saved back to the repo. Run
+    <code>python3 src/configure.py</code> from the repo root to edit and save in place.
+  </div>
+
+  <section id="tab-experiment">
+    <div class="panelbar">
+      <button class="primary" id="save-config">Save experiment settings</button>
+      <span class="status" id="config-status"></span>
+      <span class="spacer"></span>
+    </div>
+    <div class="msgs" id="config-msgs"></div>
+
+    <div class="card">
+      <h2>Run</h2>
+      <div class="grid4">
+        <div class="field"><label>Dataset (output folder)</label><input type="text" id="cfg-dataset"></div>
+        <div class="field"><label>Runs per prompt</label><input type="number" min="1" id="cfg-runs"></div>
+        <div class="field"><label>Workers</label><input type="number" min="1" id="cfg-workers"></div>
+        <div class="field"><label>Max cost (USD)</label><input type="number" min="0" step="1" id="cfg-maxcost"></div>
+      </div>
+      <div class="hint">Each study should use its own dataset name so results don't mix. Data lands in <code>data/&lt;dataset&gt;/</code>.</div>
+      <div style="margin-top:14px">
+        <label>Conditions</label>
+        <div class="checks">
+          <label><input type="checkbox" id="cond-on"> search_on (web search / grounding enabled)</label>
+          <label><input type="checkbox" id="cond-off"> search_off (no tools)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Models</h2>
+      <div style="overflow-x:auto">
+        <table class="models">
+          <thead><tr>
+            <th class="ck">Active</th><th>Key</th><th>Provider</th><th>Model ID</th>
+            <th class="ck">Search-off</th><th></th>
+          </tr></thead>
+          <tbody id="models-body"></tbody>
+        </table>
+      </div>
+      <button class="sm ghost" id="add-model">+ Add model</button>
+      <div class="hint">
+        <b>Active</b> models run by default. <b>Search-off</b> means the model can run
+        without web search; turn it off for retrieval-only APIs like Perplexity Sonar.
+        Advanced per-model <code>options</code> in config.json are preserved.
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-prompts" style="display:none">
+    <div class="panelbar">
+      <button class="primary" id="save-prompts">Save prompts</button>
+      <span class="status" id="prompts-status"></span>
+      <span class="spacer"></span>
+      <button class="sm ghost" id="add-language">+ Add language</button>
+    </div>
+    <div class="msgs" id="prompts-msgs"></div>
+    <div id="languages"></div>
+    <div class="hint">
+      A question can have a plain version and a “with source request” version. Leave a box
+      empty to skip that version. The <code>prompt_id</code> under each box is generated from
+      language, topic, and variant.
+    </div>
+  </section>
 </main>
 
 <script>
 "use strict";
 
-const FIELDS = ["language","language_name","resource_tier","topic","category","variant","text"];
-const TIERS = ["high","medium","low"];
-const VARIANTS = ["naked","sourced"];
+const TIERS = ["high", "medium", "low"];
+const VARIANTS = ["naked", "sourced"];
+const VARIANT_LABEL = { naked: "Plain question", sourced: "With source request" };
 
-let prompts = [];
-let filter = "";
-
+const state = { served: false, providers: [], config: null, languages: [], models: [] };
 const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const slug = (s) => String(s || "").trim().toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9._-]/g,"");
 
-/* prompt_id is derived, never hand-edited, so it cannot drift from its fields.
-   Runs are joined on this id across models, so stability matters more than beauty. */
-function makeId(p) {
-  const part = (s) => String(s || "").trim().toLowerCase().replace(/\s+/g, "-");
-  return `${part(p.language)}-${part(p.topic)}-${part(p.variant)}`;
-}
-
-function recomputeIds() {
-  prompts.forEach((p) => { p.prompt_id = makeId(p); });
-}
-
-function validate() {
-  const msgs = [];
-  const counts = {};
-  prompts.forEach((p) => { counts[p.prompt_id] = (counts[p.prompt_id] || 0) + 1; });
-
-  const dupes = Object.keys(counts).filter((k) => counts[k] > 1);
-  if (dupes.length) {
-    msgs.push({ cls: "err", text:
-      `Duplicate prompt_id (${dupes.length}): ${dupes.slice(0,4).join(", ")}${dupes.length>4?"…":""}. `
-      + `Each language+topic+variant must be unique — the runner keys every result on this id.` });
+/* ---------- load ---------- */
+async function boot() {
+  try {
+    const r = await fetch("/api/state", { cache: "no-store" });
+    if (!r.ok) throw new Error("state " + r.status);
+    const s = await r.json();
+    state.served = true;
+    state.providers = s.providers || [];
+    ingest(s.prompts, s.config);
+  } catch (e) {
+    state.served = false;
+    $("offline").style.display = "block";
+    $("save-config").disabled = true;
+    // Still render empty shells so the page isn't blank when opened as a file.
+    state.providers = ["openai", "gemini", "perplexity"];
+    ingest([], { models: {}, active_models: [], conditions: [], runs_per_prompt: 1, workers: 4 });
   }
+}
 
-  const blank = prompts.filter((p) => !String(p.text || "").trim()).length;
-  if (blank) msgs.push({ cls: "err", text: `${blank} prompt(s) have empty text.` });
+function ingest(prompts, config) {
+  state.config = config || {};
+  state.languages = promptsToLanguages(prompts || []);
+  state.models = modelsToRows(state.config);
+  $("subtitle").textContent = (state.config.experiment || "mindbench-api-search-audit")
+    + (state.served ? " · editing repo files in place" : " · read-only (file mode)");
+  fillConfig();
+  renderModels();
+  renderLanguages();
+}
 
-  const missing = prompts.filter((p) => !p.language || !p.topic || !p.variant).length;
-  if (missing) msgs.push({ cls: "err", text: `${missing} prompt(s) missing language, topic, or variant.` });
-
-  const badTier = prompts.filter((p) => p.resource_tier && !TIERS.includes(p.resource_tier)).length;
-  if (badTier) msgs.push({ cls: "warn", text: `${badTier} prompt(s) have a resource_tier outside ${TIERS.join("/")}.` });
-
-  /* The design compares a bare question against the same question with a source
-     request appended. An unpaired topic silently drops out of that comparison. */
-  const pairs = {};
-  prompts.forEach((p) => {
-    const k = `${p.language}|${p.topic}`;
-    (pairs[k] = pairs[k] || new Set()).add(p.variant);
-  });
-  const unpaired = Object.keys(pairs).filter((k) => pairs[k].size < 2);
-  if (unpaired.length) {
-    msgs.push({ cls: "warn", text:
-      `${unpaired.length} topic(s) lack a naked/sourced pair: ${unpaired.slice(0,4).join(", ")}${unpaired.length>4?"…":""}. `
-      + `These cannot contribute to the prompt-variant comparison.` });
+/* prompts[] -> [{code,name,tier,questions:[{topic,category,variants:{}}]}] */
+function promptsToLanguages(prompts) {
+  const byLang = new Map();
+  for (const p of prompts) {
+    const code = p.language || "";
+    if (!byLang.has(code)) byLang.set(code, { code, name: p.language_name || "", tier: p.resource_tier || "high", qmap: new Map() });
+    const L = byLang.get(code);
+    if (!L.name && p.language_name) L.name = p.language_name;
+    const topic = p.topic || "";
+    if (!L.qmap.has(topic)) L.qmap.set(topic, { topic, category: p.category || "", variants: {} });
+    const Q = L.qmap.get(topic);
+    if (!Q.category && p.category) Q.category = p.category;
+    Q.variants[p.variant] = p.text || "";
   }
-
-  if (!msgs.length && prompts.length) msgs.push({ cls: "ok", text: "All checks passed." });
-  return msgs;
+  return [...byLang.values()].map((L) => ({
+    code: L.code, name: L.name, tier: L.tier,
+    questions: [...L.qmap.values()],
+  }));
 }
 
-function renderStats() {
-  const byLang = {};
-  prompts.forEach((p) => { byLang[p.language] = (byLang[p.language] || 0) + 1; });
-  const naked = prompts.filter((p) => p.variant === "naked").length;
-  const sourced = prompts.filter((p) => p.variant === "sourced").length;
-  const langs = Object.keys(byLang).sort();
-  $("stats").innerHTML =
-    `<span><b>${prompts.length}</b> prompts</span>`
-    + `<span><b>${langs.length}</b> languages</span>`
-    + `<span><b>${naked}</b> naked / <b>${sourced}</b> sourced</span>`
-    + langs.map((l) => `<span>${l}: <b>${byLang[l]}</b></span>`).join("");
+/* config.models{} + active_models[] -> rows */
+function modelsToRows(cfg) {
+  const defs = cfg.models || {};
+  const active = new Set(cfg.active_models || []);
+  return Object.entries(defs).map(([key, spec]) => ({
+    key, provider: spec.provider || "", model_id: spec.model_id || "",
+    supports_search_off: spec.supports_search_off !== false,
+    active: active.has(key), _options: spec.options,
+  }));
 }
 
-function renderMsgs() {
-  $("msgs").innerHTML = validate()
-    .map((m) => `<div class="msg ${m.cls}">${m.text}</div>`).join("");
+/* ---------- experiment panel ---------- */
+function fillConfig() {
+  const c = state.config;
+  $("cfg-dataset").value = c.dataset || "";
+  $("cfg-runs").value = c.runs_per_prompt != null ? c.runs_per_prompt : 1;
+  $("cfg-workers").value = c.workers != null ? c.workers : 4;
+  $("cfg-maxcost").value = c.max_cost_usd != null ? c.max_cost_usd : "";
+  const cond = new Set(c.conditions || []);
+  $("cond-on").checked = cond.has("search_on");
+  $("cond-off").checked = cond.has("search_off");
 }
 
-function renderFilter() {
-  const langs = [...new Set(prompts.map((p) => p.language))].sort();
-  const sel = $("filter");
-  sel.innerHTML = `<option value="">All languages</option>`
-    + langs.map((l) => `<option value="${l}"${l===filter?" selected":""}>${l}</option>`).join("");
+function renderModels() {
+  const opts = (sel) => state.providers.map((p) =>
+    `<option${p === sel ? " selected" : ""}>${esc(p)}</option>`).join("");
+  $("models-body").innerHTML = state.models.map((m, i) => `
+    <tr>
+      <td class="ck"><input type="checkbox" data-mi="${i}" data-mf="active" ${m.active ? "checked" : ""}></td>
+      <td><input type="text" data-mi="${i}" data-mf="key" value="${esc(m.key)}" style="min-width:120px"></td>
+      <td><select data-mi="${i}" data-mf="provider">${opts(m.provider)}</select></td>
+      <td><input type="text" data-mi="${i}" data-mf="model_id" value="${esc(m.model_id)}" style="min-width:130px"></td>
+      <td class="ck"><input type="checkbox" data-mi="${i}" data-mf="supports_search_off" ${m.supports_search_off ? "checked" : ""}></td>
+      <td class="ck"><button class="sm danger ghost" data-mdel="${i}">✕</button></td>
+    </tr>`).join("") || `<tr><td colspan="6" style="color:var(--muted);padding:10px 7px">No models yet.</td></tr>`;
 }
 
-function cell(p, idx, field) {
-  const v = p[field] == null ? "" : String(p[field]);
-  const esc = v.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
-  if (field === "variant" || field === "resource_tier") {
-    const opts = field === "variant" ? VARIANTS : TIERS;
-    return `<select data-i="${idx}" data-f="${field}">`
-      + opts.map((o) => `<option${o===v?" selected":""}>${o}</option>`).join("")
-      + (opts.includes(v) ? "" : `<option selected>${esc}</option>`) + `</select>`;
+/* ---------- prompts panel ---------- */
+function renderLanguages() {
+  const host = $("languages");
+  if (!state.languages.length) {
+    host.innerHTML = `<div class="hint">No prompts yet. Use “Add language” to start.</div>`;
+    validatePrompts(); return;
   }
-  if (field === "text") {
-    return `<textarea rows="2" data-i="${idx}" data-f="${field}">${esc}</textarea>`;
-  }
-  return `<input data-i="${idx}" data-f="${field}" value="${esc}">`;
+  const idCounts = countIds();
+  host.innerHTML = state.languages.map((L, li) => `
+    <div class="lang">
+      <div class="lang-head">
+        <div class="field code"><label>Lang</label><input type="text" data-li="${li}" data-lf="code" value="${esc(L.code)}"></div>
+        <div class="field name"><label>Language name</label><input type="text" data-li="${li}" data-lf="name" value="${esc(L.name)}"></div>
+        <div class="field tier"><label>Resource tier</label>
+          <select data-li="${li}" data-lf="tier">${TIERS.map((t) => `<option${t === L.tier ? " selected" : ""}>${t}</option>`).join("")}</select></div>
+        <span class="spacer"></span>
+        <span class="count">${L.questions.length} question${L.questions.length === 1 ? "" : "s"}</span>
+        <button class="sm ghost" data-addq="${li}">+ Question</button>
+        <button class="sm danger ghost" data-dellang="${li}">Delete language</button>
+      </div>
+      ${L.questions.map((Q, qi) => questionHtml(L, li, Q, qi, idCounts)).join("")}
+    </div>`).join("");
+  validatePrompts();
 }
 
-function render() {
-  recomputeIds();
-  renderStats(); renderMsgs(); renderFilter();
-
-  const host = $("rows");
-  if (!prompts.length) { host.innerHTML = `<div class="empty">No prompts loaded yet.</div>`; return; }
-
-  const shown = prompts.map((p, i) => [p, i]).filter(([p]) => !filter || p.language === filter);
-  const groups = {};
-  shown.forEach(([p, i]) => { (groups[p.language] = groups[p.language] || []).push([p, i]); });
-
-  const idCounts = {};
-  prompts.forEach((p) => { idCounts[p.prompt_id] = (idCounts[p.prompt_id] || 0) + 1; });
-
-  host.innerHTML = Object.keys(groups).sort().map((lang) => {
-    const rows = groups[lang].map(([p, i]) => {
-      const dupe = idCounts[p.prompt_id] > 1;
-      const noText = !String(p.text || "").trim();
-      return `<tr>
-        <td class="pid" title="${p.prompt_id}" style="color:${dupe ? "var(--err)" : "var(--muted)"}">${p.prompt_id}</td>
-        <td style="width:70px">${cell(p,i,"language")}</td>
-        <td style="width:110px">${cell(p,i,"language_name")}</td>
-        <td style="width:130px">${cell(p,i,"topic")}</td>
-        <td style="width:105px">${cell(p,i,"variant")}</td>
-        <td class="${noText ? "bad" : ""}">${cell(p,i,"text")}</td>
-        <td style="width:130px">${cell(p,i,"category")}</td>
-        <td style="width:95px">${cell(p,i,"resource_tier")}</td>
-        <td style="width:1%"><button class="rowbtn" data-del="${i}" title="Delete">✕</button></td>
-      </tr>`;
-    }).join("");
-    const name = groups[lang][0][0].language_name || lang;
-    return `<div class="langgroup">
-      <div class="langhead"><h2>${name}</h2><span class="n">${groups[lang].length} prompts</span></div>
-      <div class="tablewrap"><table>
-        <thead><tr>
-          <th>prompt_id (auto)</th><th>lang</th><th>language_name</th><th>topic</th><th>variant</th>
-          <th>text</th><th>category</th><th>tier</th><th></th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table></div>
+function questionHtml(L, li, Q, qi, idCounts) {
+  const variants = Array.from(new Set([...VARIANTS, ...Object.keys(Q.variants)]));
+  const boxes = variants.map((v) => {
+    const pid = `${slug(L.code)}-${slug(Q.topic)}-${slug(v)}`;
+    const dupe = idCounts[pid] > 1;
+    return `<div class="field">
+      <label>${esc(VARIANT_LABEL[v] || v)}</label>
+      <textarea data-li="${li}" data-qi="${qi}" data-var="${esc(v)}" rows="3" placeholder="leave empty to skip">${esc(Q.variants[v] || "")}</textarea>
+      <div class="pid ${dupe ? "dupe" : ""}" title="${pid}">${pid}</div>
     </div>`;
   }).join("");
-
-  $("download").disabled = false;
+  return `<div class="q">
+    <div class="q-top">
+      <div class="field topic"><label>Topic (used in id)</label><input type="text" data-li="${li}" data-qi="${qi}" data-qf="topic" value="${esc(Q.topic)}"></div>
+      <div class="field cat"><label>Category</label><input type="text" data-li="${li}" data-qi="${qi}" data-qf="category" value="${esc(Q.category)}"></div>
+      <button class="sm danger ghost" data-delq="${li}:${qi}" style="align-self:flex-end">Delete</button>
+    </div>
+    <div class="variants">${boxes}</div>
+  </div>`;
 }
 
-/* Re-rendering on every keystroke would steal focus mid-typing, so a field edit
-   updates state and refreshes only the derived id and the validation panel. */
-document.addEventListener("input", (e) => {
-  const t = e.target;
-  const i = t.dataset && t.dataset.i;
-  if (i == null) return;
-  prompts[+i][t.dataset.f] = t.value;
-  recomputeIds();
-  const row = t.closest("tr");
-  if (row) row.querySelector(".pid").textContent = prompts[+i].prompt_id;
-  renderStats(); renderMsgs();
-});
-
-document.addEventListener("click", (e) => {
-  const del = e.target.dataset && e.target.dataset.del;
-  if (del == null) return;
-  const p = prompts[+del];
-  if (confirm(`Delete "${p.prompt_id}"?\n\n${(p.text || "").slice(0, 120)}`)) {
-    prompts.splice(+del, 1);
-    render();
+/* ---------- flatten + validate ---------- */
+function flattenPrompts() {
+  const out = [];
+  for (const L of state.languages) {
+    for (const Q of L.questions) {
+      const variants = Array.from(new Set([...VARIANTS, ...Object.keys(Q.variants)]));
+      for (const v of variants) {
+        const text = (Q.variants[v] || "").trim();
+        if (!text) continue;
+        out.push({
+          prompt_id: `${slug(L.code)}-${slug(Q.topic)}-${slug(v)}`,
+          language: L.code, language_name: L.name, resource_tier: L.tier,
+          topic: Q.topic, category: Q.category, variant: v, text: Q.variants[v],
+        });
+      }
+    }
   }
+  return out;
+}
+
+function countIds() {
+  const c = {};
+  for (const p of flattenPrompts()) c[p.prompt_id] = (c[p.prompt_id] || 0) + 1;
+  return c;
+}
+
+function validatePrompts() {
+  const msgs = [];
+  const flat = flattenPrompts();
+  const ids = flat.map((p) => p.prompt_id);
+  const dupes = [...new Set(ids.filter((i) => ids.filter((x) => x === i).length > 1))];
+  if (dupes.length) msgs.push({ cls: "err", t: `Duplicate prompt_id: ${dupes.slice(0,5).join(", ")}${dupes.length>5?"…":""}. Each language + topic + variant must be unique.` });
+
+  for (const L of state.languages) {
+    if (!L.code.trim()) msgs.push({ cls: "err", t: "A language is missing its code." });
+    for (const Q of L.questions) {
+      if (!Q.topic.trim()) { msgs.push({ cls: "err", t: `A question in “${esc(L.code||"?")}” has no topic.` }); continue; }
+      const hasText = VARIANTS.concat(Object.keys(Q.variants)).some((v) => (Q.variants[v]||"").trim());
+      if (!hasText) msgs.push({ cls: "warn", t: `${L.code}-${slug(Q.topic)} has no text in any variant and won’t be written.` });
+    }
+  }
+  const n = flat.length;
+  if (!msgs.length) msgs.push({ cls: "ok", t: `${n} prompt${n===1?"":"s"} ready to save.` });
+  $("prompts-msgs").innerHTML = msgs.map((m) => `<div class="msg ${m.cls}">${m.t}</div>`).join("");
+  return !msgs.some((m) => m.cls === "err");
+}
+
+function validateConfig() {
+  const msgs = [];
+  const keys = state.models.map((m) => m.key.trim());
+  const dup = keys.filter((k, i) => k && keys.indexOf(k) !== i);
+  if (dup.length) msgs.push({ cls: "err", t: `Duplicate model key: ${[...new Set(dup)].join(", ")}.` });
+  if (state.models.some((m) => !m.key.trim() || !m.model_id.trim()))
+    msgs.push({ cls: "err", t: "Every model needs a key and a model ID." });
+  if (!state.models.some((m) => m.active)) msgs.push({ cls: "err", t: "At least one model must be active." });
+  if (!$("cond-on").checked && !$("cond-off").checked) msgs.push({ cls: "err", t: "Pick at least one condition." });
+  if (!$("cfg-dataset").value.trim()) msgs.push({ cls: "warn", t: "No dataset name; output will fall back to the experiment name." });
+  if (!msgs.length) msgs.push({ cls: "ok", t: "Settings look valid." });
+  $("config-msgs").innerHTML = msgs.map((m) => `<div class="msg ${m.cls}">${m.t}</div>`).join("");
+  return !msgs.some((m) => m.cls === "err");
+}
+
+/* ---------- save ---------- */
+async function post(path, body, statusEl) {
+  const el = $(statusEl);
+  if (!state.served) {
+    el.textContent = "read-only — launch configure.py to save"; el.className = "status err";
+    return false;
+  }
+  el.textContent = "saving…"; el.className = "status";
+  try {
+    const r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const j = await r.json();
+    el.textContent = j.message || (j.ok ? "saved" : "failed");
+    el.className = "status " + (j.ok ? "ok" : "err");
+    return j.ok;
+  } catch (e) {
+    el.textContent = "save failed: " + e.message; el.className = "status err";
+    return false;
+  }
+}
+
+function buildConfigPayload() {
+  const models = {};
+  for (const m of state.models) {
+    const spec = { provider: m.provider, model_id: m.model_id.trim(), supports_search_off: !!m.supports_search_off };
+    if (m._options !== undefined) spec.options = m._options;
+    models[m.key.trim()] = spec;
+  }
+  const conditions = [];
+  if ($("cond-on").checked) conditions.push("search_on");
+  if ($("cond-off").checked) conditions.push("search_off");
+  const maxcost = $("cfg-maxcost").value.trim();
+  return {
+    dataset: $("cfg-dataset").value.trim(),
+    conditions,
+    runs_per_prompt: Number($("cfg-runs").value) || 1,
+    workers: Number($("cfg-workers").value) || 1,
+    max_cost_usd: maxcost === "" ? null : Number(maxcost),
+    models,
+    active_models: state.models.filter((m) => m.active).map((m) => m.key.trim()),
+  };
+}
+
+/* ---------- events ---------- */
+document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
+  t.classList.add("active");
+  $("tab-experiment").style.display = t.dataset.tab === "experiment" ? "" : "none";
+  $("tab-prompts").style.display = t.dataset.tab === "prompts" ? "" : "none";
+}));
+
+// Prompt edits: update state without a full re-render so focus is kept; refresh
+// only the derived prompt_id line and the validation summary.
+$("languages").addEventListener("input", (e) => {
+  const t = e.target, d = t.dataset;
+  if (d.li == null) return;
+  const L = state.languages[+d.li];
+  if (d.lf) { L[d.lf] = t.value; renderLanguages(); return; }   // lang code/name/tier: re-render ids
+  if (d.qf) { L.questions[+d.qi][d.qf] = t.value; refreshIds(); return; }
+  if (d.var != null) { L.questions[+d.qi].variants[d.var] = t.value; refreshIds(); }
 });
 
-$("filter").addEventListener("change", (e) => { filter = e.target.value; render(); });
+$("languages").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  const d = b.dataset;
+  if (d.addq != null) { state.languages[+d.addq].questions.push({ topic: "new-topic", category: "", variants: { naked: "", sourced: "" } }); renderLanguages(); }
+  else if (d.dellang != null) { const L = state.languages[+d.dellang]; if (confirm(`Delete language “${L.code}” and its ${L.questions.length} question(s)?`)) { state.languages.splice(+d.dellang, 1); renderLanguages(); } }
+  else if (d.delq != null) { const [li, qi] = d.delq.split(":").map(Number); if (confirm("Delete this question?")) { state.languages[li].questions.splice(qi, 1); renderLanguages(); } }
+});
 
-$("add").addEventListener("click", () => {
-  const base = prompts[prompts.length - 1] || {};
-  prompts.push({
-    prompt_id: "", language: filter || base.language || "en",
-    language_name: base.language_name || "English",
-    resource_tier: base.resource_tier || "high",
-    topic: "new-topic", category: base.category || "", variant: "naked", text: "",
+function refreshIds() {
+  const counts = countIds();
+  document.querySelectorAll("#languages .q").forEach((qEl) => {
+    qEl.querySelectorAll("textarea[data-var]").forEach((ta) => {
+      const L = state.languages[+ta.dataset.li], Q = L.questions[+ta.dataset.qi];
+      const pid = `${slug(L.code)}-${slug(Q.topic)}-${slug(ta.dataset.var)}`;
+      const line = ta.parentElement.querySelector(".pid");
+      if (line) { line.textContent = pid; line.title = pid; line.classList.toggle("dupe", counts[pid] > 1); }
+    });
   });
-  render();
+  validatePrompts();
+}
+
+$("add-language").addEventListener("click", () => {
+  state.languages.push({ code: "xx", name: "", tier: "high", questions: [{ topic: "new-topic", category: "", variants: { naked: "", sourced: "" } }] });
+  renderLanguages();
+  document.querySelector('.tab[data-tab="prompts"]').click();
   window.scrollTo(0, document.body.scrollHeight);
 });
 
-function load(data, origin) {
-  if (!Array.isArray(data)) throw new Error("Expected a JSON array of prompt objects.");
-  prompts = data.map((p) => {
-    // prompt_id is seeded first so key order survives a round-trip and matches
-    // build_prompts.py output; otherwise every download is a whole-file diff.
-    const out = { prompt_id: p.prompt_id || "" };
-    FIELDS.forEach((f) => { out[f] = p[f] == null ? "" : p[f]; });
-    return out;
-  });
-  filter = "";
-  render();
-  console.log(`loaded ${prompts.length} prompts from ${origin}`);
-}
+// Models table edits
+$("models-body").addEventListener("input", (e) => {
+  const d = e.target.dataset; if (d.mi == null) return;
+  const m = state.models[+d.mi];
+  if (d.mf === "active" || d.mf === "supports_search_off") m[d.mf] = e.target.checked;
+  else m[d.mf] = e.target.value;
+  validateConfig();
+});
+$("models-body").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-mdel]"); if (!b) return;
+  state.models.splice(+b.dataset.mdel, 1); renderModels(); validateConfig();
+});
+$("add-model").addEventListener("click", () => {
+  state.models.push({ key: "new-model", provider: state.providers[0] || "openai", model_id: "", supports_search_off: true, active: true });
+  renderModels(); validateConfig();
+});
+["cfg-dataset","cfg-runs","cfg-workers","cfg-maxcost","cond-on","cond-off"].forEach((id) =>
+  $(id).addEventListener("input", validateConfig));
 
-$("file").addEventListener("change", (e) => {
-  const f = e.target.files[0];
-  if (!f) return;
-  const r = new FileReader();
-  r.onload = () => {
-    try { load(JSON.parse(r.result), f.name); }
-    catch (err) { alert("Could not parse that file:\n\n" + err.message); }
-  };
-  r.readAsText(f);
+$("save-prompts").addEventListener("click", async () => {
+  if (!validatePrompts()) return;
+  await post("/api/prompts", flattenPrompts(), "prompts-status");
+});
+$("save-config").addEventListener("click", async () => {
+  if (!validateConfig()) return;
+  await post("/api/config", buildConfigPayload(), "config-status");
 });
 
-$("reload").addEventListener("click", tryFetch);
-
-async function tryFetch() {
-  try {
-    const r = await fetch("prompts.json", { cache: "no-store" });
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    load(await r.json(), "prompts.json");
-  } catch (err) {
-    // Expected under file:// — the picker is the supported path there.
-    console.log("fetch unavailable (" + err.message + "); use Load prompts.json");
-  }
-}
-
-$("download").addEventListener("click", () => {
-  recomputeIds();
-  const blocking = validate().filter((m) => m.cls === "err");
-  if (blocking.length && !confirm(
-      "There are validation errors:\n\n"
-      + blocking.map((m) => "• " + m.text).join("\n\n")
-      + "\n\nDownload anyway?")) return;
-  // 2-space indent + unescaped unicode matches build_prompts.py output, so a
-  // round-trip through this editor produces a minimal diff.
-  const blob = new Blob([JSON.stringify(prompts, null, 2) + "\n"], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "prompts.json";
-  a.click();
-  URL.revokeObjectURL(a.href);
-});
-
-tryFetch();
+boot();
 </script>
 </body>
 </html>

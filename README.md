@@ -47,16 +47,30 @@ python3 src/extract.py --models openai-54mini gemini-35flash pplx-sonar
 Python 3.9+ and no third-party packages: it uses only the standard library, so
 there is nothing to install and nothing to break when you come back to it later.
 
-## Using your own questions
+## Configuring an experiment
 
-Open `editor.html` in a browser for a table view of `prompts.json`. You can add,
-edit, delete, and filter prompts by language, and it validates as you type
-(duplicate ids, empty text, topics missing their variant counterpart). Click
-Download prompts.json and move the file over the repo copy.
+The quickest way to set up a run is the browser editor:
 
-A prompt is an object with a stable `prompt_id` (built from
-`language`-`topic`-`variant`, so it stays in sync with those fields), the prompt
-`text`, and whatever metadata you want to group by:
+```bash
+python3 src/configure.py
+```
+
+This starts a local server (bound to localhost) and opens the page in your
+browser. It reads the current `prompts.json` and `config.json`, and its Save
+buttons write straight back to those files, so there is no download-and-move
+step. Stop it with Ctrl-C when you're done. The page has two tabs:
+
+- **Experiment** edits `config.json`: the dataset name, which models are defined
+  and active, conditions, runs per prompt, workers, and the cost ceiling.
+- **Prompts** edits `prompts.json`, grouped by language. Each question shows its
+  plain and "with source request" text side by side, so the two variants stay
+  paired. You can add or remove questions and languages, and the `prompt_id`
+  under each box updates as you type. It validates live for duplicate ids, empty
+  topics, and questions with no text.
+
+You can also edit the files by hand. A prompt is an object with a stable
+`prompt_id` (built from `language`-`topic`-`variant`, so it stays in sync with
+those fields), the prompt `text`, and any metadata you want to group by:
 
 ```json
 {
@@ -72,9 +86,7 @@ The tool only relies on `language`, `topic`, and `variant`. The `variant` field
 supports paired designs, where the same question is asked with and without an
 explicit request for sources, but you don't have to use it.
 
-## Using your own models
-
-Models are declared in `config.json`, with no code changes:
+Models live in `config.json` under `models`, and adding one needs no code change:
 
 ```json
 "models": {
@@ -98,7 +110,8 @@ Models are declared in `config.json`, with no code changes:
 Other config fields: `dataset` (names the `data/<dataset>/` output folder; give
 each study its own so results don't collide), `conditions` (`search_on` /
 `search_off`), `runs_per_prompt`, `workers`, and `max_cost_usd`. Each can be
-overridden with a CLI flag.
+overridden with a CLI flag. The `options` field is not exposed in the editor, but
+the editor preserves it when you save.
 
 To add a provider, subclass `Provider` in `src/providers.py` with a `call()` and
 a `usage()`, then register it. Override `reported_cost()` if the API reports its
@@ -184,10 +197,11 @@ enforces that by refusing to mix instruments within one dataset.
 config.json          experiment definition: models, conditions, runs
 pricing.example.json template for prices (copy to pricing.json)
 prompts.json         the active prompt set
-editor.html          browser UI for editing prompts
+editor.html          browser UI for editing prompts and config
 src/
   paths.py           path and config resolution
   providers.py       provider registry and API adapters
+  configure.py       local server backing editor.html; saves in place
   runner.py          the sweep: resumable, interruptible, cost-capped
   extract.py         raw responses -> normalized source table
   cost.py            cost accounting from pricing.json
