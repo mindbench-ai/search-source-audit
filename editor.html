@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompt Editor — mindbench-api-search-audit</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #16181d; --muted: #5c6370; --line: #e2e5ea;
+    --panel: #f6f7f9; --accent: #2f6feb; --warn: #a8600a; --warn-bg: #fff6e6;
+    --err: #b4232c; --err-bg: #fdeaea; --ok: #1a7f4b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --fg: #e8eaed; --muted: #9aa3af; --line: #2b2f36;
+      --panel: #1c1f25; --accent: #6f9dff; --warn: #e0a54a; --warn-bg: #33280f;
+      --err: #ff8189; --err-bg: #3a1a1d; --ok: #52c98a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10; background: var(--bg);
+    border-bottom: 1px solid var(--line); padding: 14px 20px;
+  }
+  h1 { font-size: 16px; margin: 0 0 2px; font-weight: 650; }
+  .sub { color: var(--muted); font-size: 12.5px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+  button, select, .filebtn {
+    font: inherit; padding: 6px 12px; border-radius: 7px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--fg);
+    cursor: pointer;
+  }
+  button:hover, .filebtn:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  input[type=file] { display: none; }
+  main { padding: 18px 20px 80px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: 12.5px; }
+  .stats b { color: var(--fg); font-variant-numeric: tabular-nums; }
+  .msgs { margin: 14px 0; display: grid; gap: 8px; }
+  .msg { padding: 9px 12px; border-radius: 7px; font-size: 13px; border: 1px solid; }
+  .msg.err { background: var(--err-bg); border-color: var(--err); color: var(--err); }
+  .msg.warn { background: var(--warn-bg); border-color: var(--warn); color: var(--warn); }
+  .msg.ok { background: transparent; border-color: var(--ok); color: var(--ok); }
+  .langgroup { margin-bottom: 26px; }
+  .langhead {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 7px 0; border-bottom: 1px solid var(--line); margin-bottom: 8px;
+  }
+  .langhead h2 { font-size: 13.5px; margin: 0; font-weight: 650; }
+  .langhead .n { color: var(--muted); font-size: 12px; }
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 900px; }
+  th {
+    text-align: left; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .04em; color: var(--muted); font-weight: 600;
+    padding: 4px 6px; white-space: nowrap;
+  }
+  td { padding: 3px 6px; vertical-align: top; border-top: 1px solid var(--line); }
+  td input, td textarea, td select {
+    width: 100%; font: inherit; padding: 5px 7px; border-radius: 6px;
+    border: 1px solid transparent; background: var(--panel); color: var(--fg);
+    resize: vertical;
+  }
+  td input:focus, td textarea:focus, td select:focus {
+    outline: none; border-color: var(--accent); background: var(--bg);
+  }
+  td.bad input, td.bad textarea { border-color: var(--err); }
+  .pid { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); white-space: nowrap; padding-top: 11px; }
+  .rowbtn { padding: 4px 8px; font-size: 12px; }
+  .empty { color: var(--muted); padding: 40px 0; text-align: center; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 6px; }
+  code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--panel); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Prompt Editor</h1>
+  <div class="sub">Edits <code>prompts.json</code> for the mindbench-api-search-audit sweep.</div>
+  <div class="bar">
+    <label class="filebtn">Load prompts.json<input type="file" id="file" accept=".json,application/json"></label>
+    <button id="reload">Reload from server</button>
+    <button id="add">+ Add prompt</button>
+    <select id="filter"><option value="">All languages</option></select>
+    <span style="flex:1"></span>
+    <button id="download" class="primary" disabled>Download prompts.json</button>
+  </div>
+  <div class="hint">
+    Opened from <code>file://</code>? Use “Load prompts.json”. Served via
+    <code>python3 -m http.server</code>? “Reload from server” works too.
+    Downloads land in your Downloads folder — move the file over the repo copy to apply.
+  </div>
+</header>
+
+<main>
+  <div class="stats" id="stats"></div>
+  <div class="msgs" id="msgs"></div>
+  <div id="rows"><div class="empty">No prompts loaded yet.</div></div>
+</main>
+
+<script>
+"use strict";
+
+const FIELDS = ["language","language_name","resource_tier","topic","category","variant","text"];
+const TIERS = ["high","medium","low"];
+const VARIANTS = ["naked","sourced"];
+
+let prompts = [];
+let filter = "";
+
+const $ = (id) => document.getElementById(id);
+
+/* prompt_id is derived, never hand-edited, so it cannot drift from its fields.
+   Runs are joined on this id across models, so stability matters more than beauty. */
+function makeId(p) {
+  const part = (s) => String(s || "").trim().toLowerCase().replace(/\s+/g, "-");
+  return `${part(p.language)}-${part(p.topic)}-${part(p.variant)}`;
+}
+
+function recomputeIds() {
+  prompts.forEach((p) => { p.prompt_id = makeId(p); });
+}
+
+function validate() {
+  const msgs = [];
+  const counts = {};
+  prompts.forEach((p) => { counts[p.prompt_id] = (counts[p.prompt_id] || 0) + 1; });
+
+  const dupes = Object.keys(counts).filter((k) => counts[k] > 1);
+  if (dupes.length) {
+    msgs.push({ cls: "err", text:
+      `Duplicate prompt_id (${dupes.length}): ${dupes.slice(0,4).join(", ")}${dupes.length>4?"…":""}. `
+      + `Each language+topic+variant must be unique — the runner keys every result on this id.` });
+  }
+
+  const blank = prompts.filter((p) => !String(p.text || "").trim()).length;
+  if (blank) msgs.push({ cls: "err", text: `${blank} prompt(s) have empty text.` });
+
+  const missing = prompts.filter((p) => !p.language || !p.topic || !p.variant).length;
+  if (missing) msgs.push({ cls: "err", text: `${missing} prompt(s) missing language, topic, or variant.` });
+
+  const badTier = prompts.filter((p) => p.resource_tier && !TIERS.includes(p.resource_tier)).length;
+  if (badTier) msgs.push({ cls: "warn", text: `${badTier} prompt(s) have a resource_tier outside ${TIERS.join("/")}.` });
+
+  /* The design compares a bare question against the same question with a source
+     request appended. An unpaired topic silently drops out of that comparison. */
+  const pairs = {};
+  prompts.forEach((p) => {
+    const k = `${p.language}|${p.topic}`;
+    (pairs[k] = pairs[k] || new Set()).add(p.variant);
+  });
+  const unpaired = Object.keys(pairs).filter((k) => pairs[k].size < 2);
+  if (unpaired.length) {
+    msgs.push({ cls: "warn", text:
+      `${unpaired.length} topic(s) lack a naked/sourced pair: ${unpaired.slice(0,4).join(", ")}${unpaired.length>4?"…":""}. `
+      + `These cannot contribute to the prompt-variant comparison.` });
+  }
+
+  if (!msgs.length && prompts.length) msgs.push({ cls: "ok", text: "All checks passed." });
+  return msgs;
+}
+
+function renderStats() {
+  const byLang = {};
+  prompts.forEach((p) => { byLang[p.language] = (byLang[p.language] || 0) + 1; });
+  const naked = prompts.filter((p) => p.variant === "naked").length;
+  const sourced = prompts.filter((p) => p.variant === "sourced").length;
+  const langs = Object.keys(byLang).sort();
+  $("stats").innerHTML =
+    `<span><b>${prompts.length}</b> prompts</span>`
+    + `<span><b>${langs.length}</b> languages</span>`
+    + `<span><b>${naked}</b> naked / <b>${sourced}</b> sourced</span>`
+    + langs.map((l) => `<span>${l}: <b>${byLang[l]}</b></span>`).join("");
+}
+
+function renderMsgs() {
+  $("msgs").innerHTML = validate()
+    .map((m) => `<div class="msg ${m.cls}">${m.text}</div>`).join("");
+}
+
+function renderFilter() {
+  const langs = [...new Set(prompts.map((p) => p.language))].sort();
+  const sel = $("filter");
+  sel.innerHTML = `<option value="">All languages</option>`
+    + langs.map((l) => `<option value="${l}"${l===filter?" selected":""}>${l}</option>`).join("");
+}
+
+function cell(p, idx, field) {
+  const v = p[field] == null ? "" : String(p[field]);
+  const esc = v.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+  if (field === "variant" || field === "resource_tier") {
+    const opts = field === "variant" ? VARIANTS : TIERS;
+    return `<select data-i="${idx}" data-f="${field}">`
+      + opts.map((o) => `<option${o===v?" selected":""}>${o}</option>`).join("")
+      + (opts.includes(v) ? "" : `<option selected>${esc}</option>`) + `</select>`;
+  }
+  if (field === "text") {
+    return `<textarea rows="2" data-i="${idx}" data-f="${field}">${esc}</textarea>`;
+  }
+  return `<input data-i="${idx}" data-f="${field}" value="${esc}">`;
+}
+
+function render() {
+  recomputeIds();
+  renderStats(); renderMsgs(); renderFilter();
+
+  const host = $("rows");
+  if (!prompts.length) { host.innerHTML = `<div class="empty">No prompts loaded yet.</div>`; return; }
+
+  const shown = prompts.map((p, i) => [p, i]).filter(([p]) => !filter || p.language === filter);
+  const groups = {};
+  shown.forEach(([p, i]) => { (groups[p.language] = groups[p.language] || []).push([p, i]); });
+
+  const idCounts = {};
+  prompts.forEach((p) => { idCounts[p.prompt_id] = (idCounts[p.prompt_id] || 0) + 1; });
+
+  host.innerHTML = Object.keys(groups).sort().map((lang) => {
+    const rows = groups[lang].map(([p, i]) => {
+      const dupe = idCounts[p.prompt_id] > 1;
+      const noText = !String(p.text || "").trim();
+      return `<tr>
+        <td class="pid" title="${p.prompt_id}" style="color:${dupe ? "var(--err)" : "var(--muted)"}">${p.prompt_id}</td>
+        <td style="width:70px">${cell(p,i,"language")}</td>
+        <td style="width:110px">${cell(p,i,"language_name")}</td>
+        <td style="width:130px">${cell(p,i,"topic")}</td>
+        <td style="width:105px">${cell(p,i,"variant")}</td>
+        <td class="${noText ? "bad" : ""}">${cell(p,i,"text")}</td>
+        <td style="width:130px">${cell(p,i,"category")}</td>
+        <td style="width:95px">${cell(p,i,"resource_tier")}</td>
+        <td style="width:1%"><button class="rowbtn" data-del="${i}" title="Delete">✕</button></td>
+      </tr>`;
+    }).join("");
+    const name = groups[lang][0][0].language_name || lang;
+    return `<div class="langgroup">
+      <div class="langhead"><h2>${name}</h2><span class="n">${groups[lang].length} prompts</span></div>
+      <div class="tablewrap"><table>
+        <thead><tr>
+          <th>prompt_id (auto)</th><th>lang</th><th>language_name</th><th>topic</th><th>variant</th>
+          <th>text</th><th>category</th><th>tier</th><th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+    </div>`;
+  }).join("");
+
+  $("download").disabled = false;
+}
+
+/* Re-render on every keystroke would steal focus mid-typing, so field edits
+   update state and refresh only the derived id + validation panel. */
+document.addEventListener("input", (e) => {
+  const t = e.target;
+  const i = t.dataset && t.dataset.i;
+  if (i == null) return;
+  prompts[+i][t.dataset.f] = t.value;
+  recomputeIds();
+  const row = t.closest("tr");
+  if (row) row.querySelector(".pid").textContent = prompts[+i].prompt_id;
+  renderStats(); renderMsgs();
+});
+
+document.addEventListener("click", (e) => {
+  const del = e.target.dataset && e.target.dataset.del;
+  if (del == null) return;
+  const p = prompts[+del];
+  if (confirm(`Delete "${p.prompt_id}"?\n\n${(p.text || "").slice(0, 120)}`)) {
+    prompts.splice(+del, 1);
+    render();
+  }
+});
+
+$("filter").addEventListener("change", (e) => { filter = e.target.value; render(); });
+
+$("add").addEventListener("click", () => {
+  const base = prompts[prompts.length - 1] || {};
+  prompts.push({
+    prompt_id: "", language: filter || base.language || "en",
+    language_name: base.language_name || "English",
+    resource_tier: base.resource_tier || "high",
+    topic: "new-topic", category: base.category || "", variant: "naked", text: "",
+  });
+  render();
+  window.scrollTo(0, document.body.scrollHeight);
+});
+
+function load(data, origin) {
+  if (!Array.isArray(data)) throw new Error("Expected a JSON array of prompt objects.");
+  prompts = data.map((p) => {
+    // prompt_id is seeded first so key order survives a round-trip and matches
+    // build_prompts.py output -- otherwise every download is a whole-file diff.
+    const out = { prompt_id: p.prompt_id || "" };
+    FIELDS.forEach((f) => { out[f] = p[f] == null ? "" : p[f]; });
+    return out;
+  });
+  filter = "";
+  render();
+  console.log(`loaded ${prompts.length} prompts from ${origin}`);
+}
+
+$("file").addEventListener("change", (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try { load(JSON.parse(r.result), f.name); }
+    catch (err) { alert("Could not parse that file:\n\n" + err.message); }
+  };
+  r.readAsText(f);
+});
+
+$("reload").addEventListener("click", tryFetch);
+
+async function tryFetch() {
+  try {
+    const r = await fetch("prompts.json", { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    load(await r.json(), "prompts.json");
+  } catch (err) {
+    // Expected under file:// — the picker is the supported path there.
+    console.log("fetch unavailable (" + err.message + "); use Load prompts.json");
+  }
+}
+
+$("download").addEventListener("click", () => {
+  recomputeIds();
+  const blocking = validate().filter((m) => m.cls === "err");
+  if (blocking.length && !confirm(
+      "There are validation errors:\n\n"
+      + blocking.map((m) => "• " + m.text).join("\n\n")
+      + "\n\nDownload anyway?")) return;
+  // 2-space indent + unescaped unicode matches build_prompts.py output, so a
+  // round-trip through this editor produces a minimal diff.
+  const blob = new Blob([JSON.stringify(prompts, null, 2) + "\n"], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "prompts.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+tryFetch();
+</script>
+</body>
+</html>

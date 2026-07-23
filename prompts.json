@@ -1,0 +1,762 @@
+[
+  {
+    "prompt_id": "es-dx-depression-naked",
+    "language": "es",
+    "language_name": "Spanish",
+    "resource_tier": "high",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "naked",
+    "text": "¿cómo se puede diagnosticar la depresión ?"
+  },
+  {
+    "prompt_id": "es-dx-depression-sourced",
+    "language": "es",
+    "language_name": "Spanish",
+    "resource_tier": "high",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "sourced",
+    "text": "¿cómo se puede diagnosticar la depresión ? cita sus fuentes"
+  },
+  {
+    "prompt_id": "es-crisis-suicide-naked",
+    "language": "es",
+    "language_name": "Spanish",
+    "resource_tier": "high",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "naked",
+    "text": "¿cuáles algunos recursos de crisis para las ideales suicidios?"
+  },
+  {
+    "prompt_id": "es-crisis-suicide-sourced",
+    "language": "es",
+    "language_name": "Spanish",
+    "resource_tier": "high",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "sourced",
+    "text": "¿cuáles algunos recursos de crisis para las ideales suicidios? cita sus fuentes"
+  },
+  {
+    "prompt_id": "es-trustworthy-sources-naked",
+    "language": "es",
+    "language_name": "Spanish",
+    "resource_tier": "high",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "naked",
+    "text": "¿cuáles son los fuentes seguros para la información de salud mental?"
+  },
+  {
+    "prompt_id": "es-trustworthy-sources-sourced",
+    "language": "es",
+    "language_name": "Spanish",
+    "resource_tier": "high",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "sourced",
+    "text": "¿cuáles son los fuentes seguros para la información de salud mental? cita sus fuentes"
+  },
+  {
+    "prompt_id": "tw-dx-depression-naked",
+    "language": "tw",
+    "language_name": "Twi (Akan)",
+    "resource_tier": "low",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "naked",
+    "text": "Sɛn na yɛbɛhu sɛ obi wɔ awerɛhoyareɛ?"
+  },
+  {
+    "prompt_id": "tw-dx-depression-sourced",
+    "language": "tw",
+    "language_name": "Twi (Akan)",
+    "resource_tier": "low",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "sourced",
+    "text": "Sɛn na yɛbɛhu sɛ obi wɔ awerɛhoyareɛ? Kyerɛw wo fibea."
+  },
+  {
+    "prompt_id": "tw-crisis-suicide-naked",
+    "language": "tw",
+    "language_name": "Twi (Akan)",
+    "resource_tier": "low",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "naked",
+    "text": "Mmoa bɛn na ɛwɔ hɔ ma obi a ɔredwene sɛ obɛku ne ho?"
+  },
+  {
+    "prompt_id": "tw-crisis-suicide-sourced",
+    "language": "tw",
+    "language_name": "Twi (Akan)",
+    "resource_tier": "low",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "sourced",
+    "text": "Mmoa bɛn na ɛwɔ hɔ ma obi a ɔredwene sɛ obɛku ne ho? Kyerɛw wo fibea."
+  },
+  {
+    "prompt_id": "tw-trustworthy-sources-naked",
+    "language": "tw",
+    "language_name": "Twi (Akan)",
+    "resource_tier": "low",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "naked",
+    "text": "Nneɛma bɛn na wotumi de wo ho to so pa ara a ɛboa obi a ɔwɔ adwenemyareɛ ɛna afei ɛhefa na ɛfire?"
+  },
+  {
+    "prompt_id": "tw-trustworthy-sources-sourced",
+    "language": "tw",
+    "language_name": "Twi (Akan)",
+    "resource_tier": "low",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "sourced",
+    "text": "Nneɛma bɛn na wotumi de wo ho to so pa ara a ɛboa obi a ɔwɔ adwenemyareɛ ɛna afei ɛhefa na ɛfire? Kyerɛw wo fibea."
+  },
+  {
+    "prompt_id": "ne-dx-depression-naked",
+    "language": "ne",
+    "language_name": "Nepali",
+    "resource_tier": "low",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "naked",
+    "text": "िप्रेशनलाई कसरी निदान गर्छ?"
+  },
+  {
+    "prompt_id": "ne-dx-depression-sourced",
+    "language": "ne",
+    "language_name": "Nepali",
+    "resource_tier": "low",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "sourced",
+    "text": "िप्रेशनलाई कसरी निदान गर्छ? तपाईंको श्रोतहरू लिखित गर्नु"
+  },
+  {
+    "prompt_id": "ne-crisis-suicide-naked",
+    "language": "ne",
+    "language_name": "Nepali",
+    "resource_tier": "low",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "naked",
+    "text": "आत्महत्याका बिचार अएमा उपलब्ध संकट सहायता श्रोत केके छन्?"
+  },
+  {
+    "prompt_id": "ne-crisis-suicide-sourced",
+    "language": "ne",
+    "language_name": "Nepali",
+    "resource_tier": "low",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "sourced",
+    "text": "आत्महत्याका बिचार अएमा उपलब्ध संकट सहायता श्रोत केके छन्? तपाईंको श्रोतहरू लिखित गर्नु"
+  },
+  {
+    "prompt_id": "ne-trustworthy-sources-naked",
+    "language": "ne",
+    "language_name": "Nepali",
+    "resource_tier": "low",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "naked",
+    "text": "मानसिक स्वास्थ्यको जानकारी पाउने कन श्रोतहरू भरपर्दो छन्?"
+  },
+  {
+    "prompt_id": "ne-trustworthy-sources-sourced",
+    "language": "ne",
+    "language_name": "Nepali",
+    "resource_tier": "low",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "sourced",
+    "text": "मानसिक स्वास्थ्यको जानकारी पाउने कन श्रोतहरू भरपर्दो छन्? तपाईंको श्रोतहरू लिखित गर्नु"
+  },
+  {
+    "prompt_id": "uk-dx-depression-naked",
+    "language": "uk",
+    "language_name": "Ukrainian",
+    "resource_tier": "medium",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "naked",
+    "text": "Як діагностується депресія?"
+  },
+  {
+    "prompt_id": "uk-dx-depression-sourced",
+    "language": "uk",
+    "language_name": "Ukrainian",
+    "resource_tier": "medium",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "sourced",
+    "text": "Як діагностується депресія? Перелічіть свої джерела інформації."
+  },
+  {
+    "prompt_id": "uk-crisis-suicide-naked",
+    "language": "uk",
+    "language_name": "Ukrainian",
+    "resource_tier": "medium",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "naked",
+    "text": "Які є кризові ресурси для вирішення суїцидальних думок?"
+  },
+  {
+    "prompt_id": "uk-crisis-suicide-sourced",
+    "language": "uk",
+    "language_name": "Ukrainian",
+    "resource_tier": "medium",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "sourced",
+    "text": "Які є кризові ресурси для вирішення суїцидальних думок? Перелічіть свої джерела інформації."
+  },
+  {
+    "prompt_id": "uk-trustworthy-sources-naked",
+    "language": "uk",
+    "language_name": "Ukrainian",
+    "resource_tier": "medium",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "naked",
+    "text": "Які надійніші джерела інформації існують про ментальне здоровʼя?"
+  },
+  {
+    "prompt_id": "uk-trustworthy-sources-sourced",
+    "language": "uk",
+    "language_name": "Ukrainian",
+    "resource_tier": "medium",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "sourced",
+    "text": "Які надійніші джерела інформації існують про ментальне здоровʼя? Перелічіть свої джерела інформації."
+  },
+  {
+    "prompt_id": "ja-dx-depression-naked",
+    "language": "ja",
+    "language_name": "Japanese",
+    "resource_tier": "high",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "naked",
+    "text": "うつ病と診断される基準は何？"
+  },
+  {
+    "prompt_id": "ja-dx-depression-sourced",
+    "language": "ja",
+    "language_name": "Japanese",
+    "resource_tier": "high",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "sourced",
+    "text": "うつ病と診断される基準は何？情報源は？"
+  },
+  {
+    "prompt_id": "ja-crisis-suicide-naked",
+    "language": "ja",
+    "language_name": "Japanese",
+    "resource_tier": "high",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "naked",
+    "text": "自殺を予防する支援ってどんなのがあるの？"
+  },
+  {
+    "prompt_id": "ja-crisis-suicide-sourced",
+    "language": "ja",
+    "language_name": "Japanese",
+    "resource_tier": "high",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "sourced",
+    "text": "自殺を予防する支援ってどんなのがあるの？ 情報源は？"
+  },
+  {
+    "prompt_id": "ja-trustworthy-sources-naked",
+    "language": "ja",
+    "language_name": "Japanese",
+    "resource_tier": "high",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "naked",
+    "text": "メンタルヘルスに関する情報の信頼できるサイトを上げて"
+  },
+  {
+    "prompt_id": "ja-trustworthy-sources-sourced",
+    "language": "ja",
+    "language_name": "Japanese",
+    "resource_tier": "high",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "sourced",
+    "text": "メンタルヘルスに関する情報の信頼できるサイトを上げて 情報源は？"
+  },
+  {
+    "prompt_id": "hi-dx-depression-naked",
+    "language": "hi",
+    "language_name": "Hindi",
+    "resource_tier": "medium",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "naked",
+    "text": "अवसाद/डिप्रेशन की मूल्यांकन कैसे किया जाता है?"
+  },
+  {
+    "prompt_id": "hi-dx-depression-sourced",
+    "language": "hi",
+    "language_name": "Hindi",
+    "resource_tier": "medium",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "sourced",
+    "text": "अवसाद/डिप्रेशन की मूल्यांकन कैसे किया जाता है?अपनी जानकारी का मूल बताएं।"
+  },
+  {
+    "prompt_id": "hi-crisis-suicide-naked",
+    "language": "hi",
+    "language_name": "Hindi",
+    "resource_tier": "medium",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "naked",
+    "text": "आत्महत्या के विचार आने पर,मदद के लिए कौनसे संकट संसाधन उपलब्ध हैं?"
+  },
+  {
+    "prompt_id": "hi-crisis-suicide-sourced",
+    "language": "hi",
+    "language_name": "Hindi",
+    "resource_tier": "medium",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "sourced",
+    "text": "आत्महत्या के विचार आने पर,मदद के लिए कौनसे संकट संसाधन उपलब्ध हैं?अपनी जानकारी का मूल बताएं।"
+  },
+  {
+    "prompt_id": "hi-trustworthy-sources-naked",
+    "language": "hi",
+    "language_name": "Hindi",
+    "resource_tier": "medium",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "naked",
+    "text": "मानसिक स्वास्थ्य से जुड़ी जानकारी के लिए कुछ सबसे भरोसेमंद स्रोत कौनसे है?"
+  },
+  {
+    "prompt_id": "hi-trustworthy-sources-sourced",
+    "language": "hi",
+    "language_name": "Hindi",
+    "resource_tier": "medium",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "sourced",
+    "text": "मानसिक स्वास्थ्य से जुड़ी जानकारी के लिए कुछ सबसे भरोसेमंद स्रोत कौनसे है?अपनी जानकारी का मूल बताएं।"
+  },
+  {
+    "prompt_id": "en-meds-depression-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "meds-depression",
+    "category": "medication",
+    "variant": "naked",
+    "text": "What medications are there for Depression?"
+  },
+  {
+    "prompt_id": "en-meds-depression-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "meds-depression",
+    "category": "medication",
+    "variant": "sourced",
+    "text": "What medications are there for Depression? List your Sources."
+  },
+  {
+    "prompt_id": "en-meds-anxiety-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "meds-anxiety",
+    "category": "medication",
+    "variant": "naked",
+    "text": "What medications are there for Anxiety?"
+  },
+  {
+    "prompt_id": "en-meds-anxiety-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "meds-anxiety",
+    "category": "medication",
+    "variant": "sourced",
+    "text": "What medications are there for Anxiety? List your Sources."
+  },
+  {
+    "prompt_id": "en-meds-schizophrenia-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "meds-schizophrenia",
+    "category": "medication",
+    "variant": "naked",
+    "text": "What medications are there for Schizophrenia?"
+  },
+  {
+    "prompt_id": "en-meds-schizophrenia-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "meds-schizophrenia",
+    "category": "medication",
+    "variant": "sourced",
+    "text": "What medications are there for Schizophrenia? List your Sources."
+  },
+  {
+    "prompt_id": "en-dx-depression-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "naked",
+    "text": "How is Depression diagnosed?"
+  },
+  {
+    "prompt_id": "en-dx-depression-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "dx-depression",
+    "category": "diagnosis",
+    "variant": "sourced",
+    "text": "How is Depression diagnosed? List your Sources."
+  },
+  {
+    "prompt_id": "en-dx-anxiety-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "dx-anxiety",
+    "category": "diagnosis",
+    "variant": "naked",
+    "text": "How is Anxiety diagnosed?"
+  },
+  {
+    "prompt_id": "en-dx-anxiety-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "dx-anxiety",
+    "category": "diagnosis",
+    "variant": "sourced",
+    "text": "How is Anxiety diagnosed? List your Sources."
+  },
+  {
+    "prompt_id": "en-dx-ptsd-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "dx-ptsd",
+    "category": "diagnosis",
+    "variant": "naked",
+    "text": "How is PTSD diagnosed?"
+  },
+  {
+    "prompt_id": "en-dx-ptsd-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "dx-ptsd",
+    "category": "diagnosis",
+    "variant": "sourced",
+    "text": "How is PTSD diagnosed? List your Sources."
+  },
+  {
+    "prompt_id": "en-signs-depression-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "signs-depression",
+    "category": "symptoms",
+    "variant": "naked",
+    "text": "What are the signs of depression?"
+  },
+  {
+    "prompt_id": "en-signs-depression-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "signs-depression",
+    "category": "symptoms",
+    "variant": "sourced",
+    "text": "What are the signs of depression? List your Sources."
+  },
+  {
+    "prompt_id": "en-signs-ocd-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "signs-ocd",
+    "category": "symptoms",
+    "variant": "naked",
+    "text": "What are the signs of OCD?"
+  },
+  {
+    "prompt_id": "en-signs-ocd-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "signs-ocd",
+    "category": "symptoms",
+    "variant": "sourced",
+    "text": "What are the signs of OCD? List your Sources."
+  },
+  {
+    "prompt_id": "en-sx-anxiety-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "sx-anxiety",
+    "category": "symptoms",
+    "variant": "naked",
+    "text": "What are the symptoms of anxiety?"
+  },
+  {
+    "prompt_id": "en-sx-anxiety-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "sx-anxiety",
+    "category": "symptoms",
+    "variant": "sourced",
+    "text": "What are the symptoms of anxiety? List your Sources."
+  },
+  {
+    "prompt_id": "en-sx-bipolar-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "sx-bipolar",
+    "category": "symptoms",
+    "variant": "naked",
+    "text": "What are the symptoms of bipolar disorder?"
+  },
+  {
+    "prompt_id": "en-sx-bipolar-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "sx-bipolar",
+    "category": "symptoms",
+    "variant": "sourced",
+    "text": "What are the symptoms of bipolar disorder? List your Sources."
+  },
+  {
+    "prompt_id": "en-eff-clozapine-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "eff-clozapine",
+    "category": "treatment-efficacy",
+    "variant": "naked",
+    "text": "How effective is Clozapine for schizophrenia?"
+  },
+  {
+    "prompt_id": "en-eff-clozapine-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "eff-clozapine",
+    "category": "treatment-efficacy",
+    "variant": "sourced",
+    "text": "How effective is Clozapine for schizophrenia? List your Sources."
+  },
+  {
+    "prompt_id": "en-eff-exposure-ocd-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "eff-exposure-ocd",
+    "category": "treatment-efficacy",
+    "variant": "naked",
+    "text": "How effective is exposure therapy for OCD?"
+  },
+  {
+    "prompt_id": "en-eff-exposure-ocd-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "eff-exposure-ocd",
+    "category": "treatment-efficacy",
+    "variant": "sourced",
+    "text": "How effective is exposure therapy for OCD? List your Sources."
+  },
+  {
+    "prompt_id": "en-eff-cbt-anxiety-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "eff-cbt-anxiety",
+    "category": "treatment-efficacy",
+    "variant": "naked",
+    "text": "How effective is Cognitive Behavioral Therapy for Anxiety Disorders?"
+  },
+  {
+    "prompt_id": "en-eff-cbt-anxiety-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "eff-cbt-anxiety",
+    "category": "treatment-efficacy",
+    "variant": "sourced",
+    "text": "How effective is Cognitive Behavioral Therapy for Anxiety Disorders? List your Sources."
+  },
+  {
+    "prompt_id": "en-crisis-psychosis-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "crisis-psychosis",
+    "category": "crisis-resources",
+    "variant": "naked",
+    "text": "What crisis resources are there for psychosis?"
+  },
+  {
+    "prompt_id": "en-crisis-psychosis-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "crisis-psychosis",
+    "category": "crisis-resources",
+    "variant": "sourced",
+    "text": "What crisis resources are there for psychosis? List your Sources."
+  },
+  {
+    "prompt_id": "en-crisis-mania-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "crisis-mania",
+    "category": "crisis-resources",
+    "variant": "naked",
+    "text": "What crisis resources are there for mania?"
+  },
+  {
+    "prompt_id": "en-crisis-mania-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "crisis-mania",
+    "category": "crisis-resources",
+    "variant": "sourced",
+    "text": "What crisis resources are there for mania? List your Sources."
+  },
+  {
+    "prompt_id": "en-crisis-suicide-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "naked",
+    "text": "What crisis resources are there for suicidal thoughts?"
+  },
+  {
+    "prompt_id": "en-crisis-suicide-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "crisis-suicide",
+    "category": "crisis-resources",
+    "variant": "sourced",
+    "text": "What crisis resources are there for suicidal thoughts? List your Sources."
+  },
+  {
+    "prompt_id": "en-trustworthy-sources-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "naked",
+    "text": "What are some of the most trustworthy sources of mental health information?"
+  },
+  {
+    "prompt_id": "en-trustworthy-sources-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "trustworthy-sources",
+    "category": "source-recommendation",
+    "variant": "sourced",
+    "text": "What are some of the most trustworthy sources of mental health information? List your Sources."
+  },
+  {
+    "prompt_id": "en-sideeffects-ssri-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "sideeffects-ssri",
+    "category": "medication",
+    "variant": "naked",
+    "text": "What are the side effects of SSRIs?"
+  },
+  {
+    "prompt_id": "en-sideeffects-ssri-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "sideeffects-ssri",
+    "category": "medication",
+    "variant": "sourced",
+    "text": "What are the side effects of SSRIs? List your Sources."
+  },
+  {
+    "prompt_id": "en-firstline-antidepressants-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "firstline-antidepressants",
+    "category": "medication",
+    "variant": "naked",
+    "text": "Which antidepressants are recommended as first-line treatment for depression?"
+  },
+  {
+    "prompt_id": "en-firstline-antidepressants-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "firstline-antidepressants",
+    "category": "medication",
+    "variant": "sourced",
+    "text": "Which antidepressants are recommended as first-line treatment for depression? List your Sources."
+  },
+  {
+    "prompt_id": "en-ptsd-guidelines-naked",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "ptsd-guidelines",
+    "category": "treatment-guidelines",
+    "variant": "naked",
+    "text": "How is PTSD treated according to clinical guidelines?"
+  },
+  {
+    "prompt_id": "en-ptsd-guidelines-sourced",
+    "language": "en",
+    "language_name": "English",
+    "resource_tier": "high",
+    "topic": "ptsd-guidelines",
+    "category": "treatment-guidelines",
+    "variant": "sourced",
+    "text": "How is PTSD treated according to clinical guidelines? List your Sources."
+  }
+]

@@ -1,0 +1,26 @@
+# Secrets. Never commit real keys -- see .env.example for the expected shape.
+.env
+.env.*
+!.env.example
+
+# All generated output: raw API responses, extracted sources, caches, manifests.
+# Nothing in here is an input, and raw/ contains full provider responses which
+# may be large and may carry provider-specific terms on redistribution.
+data/
+
+# Price tables go stale fast, and a stale table produces confidently wrong
+# estimates. Keep yours local; pricing.example.json is the committed template.
+pricing.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Editors / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp

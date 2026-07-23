@@ -1,0 +1,49 @@
+{
+  "_README": "TEMPLATE. Copy to pricing.json (gitignored) and replace every number with prices you have just checked. The values below were accurate on the `retrieved` date and are almost certainly wrong now. estimate.py warns if `retrieved` is over 90 days old, and runs without any pricing.json at all -- it just reports token and call counts instead of dollars.",
+  "retrieved": "2026-07-23",
+  "currency": "USD",
+  "note": "Prices change without notice. Re-check against vendor pricing pages and update `retrieved` before trusting any projection. Every sweep records this date in data/run_manifest.jsonl.",
+  "token_prices": {
+    "_comment": "Per 1M tokens, keyed by provider model_id. Models absent here cost 0 in estimates -- add yours before running estimate.py.",
+    "gpt-5.5": {
+      "input": 5.0,
+      "output": 30.0
+    },
+    "gpt-5.4": {
+      "input": 2.5,
+      "output": 15.0
+    },
+    "gpt-5.4-mini": {
+      "input": 0.75,
+      "output": 4.5
+    },
+    "gpt-5.4-nano": {
+      "input": 0.2,
+      "output": 1.25
+    },
+    "gemini-3.5-flash": {
+      "input": 1.5,
+      "output": 9.0
+    },
+    "gemini-3-flash-preview": {
+      "input": 1.5,
+      "output": 9.0
+    }
+  },
+  "search_fees": {
+    "_comment": "Per-call fee for the web-search/grounding tool, charged on top of tokens. `free_per_month` is a batch-level allowance applied by estimate.py, not per call.",
+    "openai": {
+      "per_call": 0.01,
+      "note": "web_search built-in tool, $10.00 / 1k calls. Retrieved content is ALSO billed as input tokens at full model rates, which usually dominates."
+    },
+    "gemini": {
+      "per_call": 0.014,
+      "free_per_month": 5000,
+      "note": "Grounding with Google Search, $14 / 1k queries after 5,000/month free (shared across the Gemini 3 family)."
+    },
+    "perplexity": {
+      "per_call": null,
+      "note": "Sonar reports its own total in usage.cost, including the per-request search fee, so it is read back rather than recomputed."
+    }
+  }
+}
