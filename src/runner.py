@@ -14,23 +14,23 @@ Design notes:
   and will hit rate limits, so the runner reads back what is already on disk and
   skips completed cells. Re-running the script always resumes; it never restarts.
 
-* Sampling is deliberately left at each provider's default temperature. Repeats
-  exist to measure retrieval nondeterminism, so pinning temperature to 0 would
-  defeat the point.
+* Each provider's default temperature is left as-is. Repeats are there to measure
+  how much retrieval varies between identical calls, so pinning temperature to 0
+  would remove the thing being measured.
 
 * A cell that returns zero sources is recorded as-is and never retried. Retrying
-  until sources appear censors the zeros and makes citation rate uncomputable.
-  Only transport and rate-limit failures are retried.
+  until sources appear drops the zeros and makes the citation rate impossible to
+  compute. Only transport and rate-limit failures are retried.
 
 STOPPING A RUN
-Three independent brakes, because an unattended sweep spends real money:
-  1. Ctrl-C (SIGINT/SIGTERM) -- no new API calls start; in-flight calls finish.
-     A second Ctrl-C exits immediately.
-  2. `touch data/STOP` -- same effect, works when the run is backgrounded or in
+Three ways to stop, since an unattended sweep spends real money:
+  1. Ctrl-C (SIGINT/SIGTERM): no new API calls start; in-flight calls finish. A
+     second Ctrl-C exits immediately.
+  2. `touch data/STOP`: same effect, and works when the run is backgrounded or in
      another terminal.
-  3. --max-cost N -- aborts once measured spend crosses N USD.
-Every brake is checked before a call is issued, never mid-flight, so a stop can
-never lose a response that was already paid for.
+  3. --max-cost N: aborts once measured spend crosses N USD.
+Each is checked before a call goes out, never mid-call, so stopping never loses a
+response that was already paid for.
 
 Provider adapters live in providers.py. This module stays provider-agnostic.
 """
@@ -241,8 +241,8 @@ def run_sweep(
 def _call_with_retry(call_fn, cell: Cell, prompt: dict, max_retries: int):
     """Retry transport/rate-limit failures with backoff.
 
-    A successful call that simply contains no sources is NOT retried -- that is a
-    real observation, not a failure.
+    A successful call that returns no sources is not retried. That is a real
+    observation, not a failure.
     """
     if ABORT.is_set():
         return SKIP
@@ -333,12 +333,12 @@ def main() -> None:
         prompts, args.models, args.languages, tuple(args.conditions), args.runs
     )
 
-    # Guard against reusing a dataset for a different instrument. This runs BEFORE
-    # the pending/dry-run check on purpose: if new prompts reuse old prompt_ids,
-    # every cell looks "done" and the run would silently report success on stale
-    # data from a different study. Comparing prompt fingerprints catches that.
-    # Resuming the same study passes (fingerprints match). A genuinely new study
-    # in a fresh dataset passes too (no prior manifest).
+    # Guard against reusing a dataset for a different instrument. This runs ahead
+    # of the pending/dry-run check for a reason: if new prompts reuse old
+    # prompt_ids, every cell looks "done" and the run would report success on
+    # stale data from another study. Comparing prompt fingerprints catches that.
+    # Resuming the same study passes (fingerprints match), and a new study in a
+    # fresh dataset passes too (no prior manifest).
     prior = paths.last_manifest_fingerprint()
     current = paths.prompts_fingerprint()
     mismatch = bool(prior and prior != current)

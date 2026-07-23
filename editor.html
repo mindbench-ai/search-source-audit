@@ -250,8 +250,8 @@ function render() {
   $("download").disabled = false;
 }
 
-/* Re-render on every keystroke would steal focus mid-typing, so field edits
-   update state and refresh only the derived id + validation panel. */
+/* Re-rendering on every keystroke would steal focus mid-typing, so a field edit
+   updates state and refreshes only the derived id and the validation panel. */
 document.addEventListener("input", (e) => {
   const t = e.target;
   const i = t.dataset && t.dataset.i;
@@ -291,7 +291,7 @@ function load(data, origin) {
   if (!Array.isArray(data)) throw new Error("Expected a JSON array of prompt objects.");
   prompts = data.map((p) => {
     // prompt_id is seeded first so key order survives a round-trip and matches
-    // build_prompts.py output -- otherwise every download is a whole-file diff.
+    // build_prompts.py output; otherwise every download is a whole-file diff.
     const out = { prompt_id: p.prompt_id || "" };
     FIELDS.forEach((f) => { out[f] = p[f] == null ? "" : p[f]; });
     return out;

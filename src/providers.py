@@ -3,9 +3,9 @@
 
 """Provider adapters and the registry that maps config entries onto them.
 
-A "provider" here names an *API surface*, not a company -- `gemini` is the Gemini
-Developer API, and a Vertex AI adapter would be a separate provider even though
-both are Google.
+A "provider" here means an API surface rather than a company. `gemini` is the
+Gemini Developer API; a Vertex AI adapter would be a separate provider even
+though both are Google.
 
 Models are declared in config.json, not here, so swapping or adding a model needs
 no code change. Adapters translate between that config and one HTTP API.
@@ -33,8 +33,8 @@ the real publisher.
 
 Every adapter returns (text, sources, raw) where each source is at minimum
 {"url": str|None, "title": str|None, "provider_field": str}, and `raw` is the
-untouched response body -- runner.py persists `raw` verbatim so extraction can be
-redesigned later without re-spending API calls.
+untouched response body. runner.py stores `raw` verbatim, so extraction can be
+rewritten later without re-spending API calls.
 """
 
 from __future__ import annotations
@@ -102,7 +102,7 @@ class Provider:
         """Resolve an indirect URL. Returns (resolved_url|None, http_status|None)."""
         return None, None
 
-    # -- shared HTTP helper -------------------------------------------------
+    # shared HTTP helper
     def _post(self, url: str, payload: dict, headers: dict, timeout: int = 180) -> dict:
         req = urllib.request.Request(
             url,
@@ -123,9 +123,9 @@ class OpenAIProvider(Provider):
 
     Citations arrive as url_citation annotations on output_text content blocks.
 
-    Note for cost estimation: retrieved search content is injected into the
-    prompt and billed as input tokens at full model rates, so a grounded call
-    can carry orders of magnitude more input tokens than the question itself.
+    A note for cost estimation: retrieved search content is added to the prompt
+    and billed as input tokens at full model rates, so a grounded call can carry
+    far more input tokens than the question itself.
 
     options:
       search_context_size  "low" | "medium" | "high" (provider default if unset)
@@ -182,8 +182,8 @@ class GeminiProvider(Provider):
     is the registrable domain and `uri` is a vertexaisearch redirect rather than
     the publisher URL. resolve_url() turns those into real URLs.
 
-    The model decides whether to search at all; responses with no
-    groundingMetadata are genuine zero-source results, not errors.
+    The model decides whether to search at all. A response with no
+    groundingMetadata is a real zero-source result, not an error.
 
     options:
       extra_payload  dict merged into the request body (e.g. generationConfig)
@@ -238,8 +238,9 @@ class GeminiProvider(Provider):
     def resolve_url(self, url, timeout=20):
         """Read the redirect target without fetching the destination page.
 
-        Undocumented but stable: the endpoint answers with a 3xx whose Location
-        header is the real URL, so only headers are retrieved.
+        This relies on undocumented behavior that has been stable in practice:
+        the endpoint returns a 3xx whose Location header is the real URL, so only
+        the headers are read.
         """
 
         class _Catch(urllib.request.HTTPRedirectHandler):

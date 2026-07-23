@@ -3,19 +3,17 @@
 
 """Cost accounting, driven by an optional local pricing.json.
 
-pricing.json is deliberately NOT committed. Vendor prices change often, and a
-stale table is worse than no table: it yields a confident number that is quietly
-wrong. Copy pricing.example.json, fill in prices you have just checked, and keep
-it local.
+pricing.json is not committed. Vendor prices change often, and a stale table just
+gives you a confident wrong number, so copy pricing.example.json, fill in prices
+you've just checked, and keep it local.
 
-Everything here degrades rather than fails when prices are missing or partial.
-Token counts and call counts -- which never go stale -- remain available, so a
-run with no pricing.json still reports the measurements you would multiply by
-current prices yourself.
+Missing or partial prices don't stop anything here. Token and call counts stay
+available even with no pricing.json, so a run without one still reports the
+figures you'd multiply by current prices yourself.
 
-Cost is computed from *measured* token usage, never from prompt length. Some
-providers inject retrieved search content into the billed prompt, so a grounded
-call's input token count can bear no relation to the question asked.
+Cost comes from measured token usage, not prompt length. Some providers fold
+retrieved search content into the billed prompt, so a grounded call's input token
+count may have little to do with the length of the question.
 """
 
 from __future__ import annotations
@@ -26,7 +24,7 @@ import functools
 import paths
 import providers
 
-# Beyond this, a price table is treated as untrustworthy and callers warn loudly.
+# Past this age, callers warn that the price table may be out of date.
 STALE_AFTER_DAYS = 90
 
 
@@ -56,7 +54,7 @@ def pricing_age_days() -> int | None:
 
 
 def pricing_warning() -> str | None:
-    """A one-line caveat to print above any dollar figure, or None if prices are fresh."""
+    """One-line caveat to print above any dollar figure, or None if prices look current."""
     if not have_pricing():
         return (
             f"No pricing.json found, so dollar figures are unavailable. "
@@ -66,13 +64,13 @@ def pricing_warning() -> str | None:
     age = pricing_age_days()
     if age is None:
         return (
-            f"{paths.PRICING.name} has no valid `retrieved` date; its age cannot be "
+            f"{paths.PRICING.name} has no valid `retrieved` date, so its age can't be "
             f"checked. Verify the prices before trusting any figure below."
         )
     if age > STALE_AFTER_DAYS:
         return (
             f"{paths.PRICING.name} was last checked {age} days ago "
-            f"({prices_retrieved()}). Vendor prices change often -- re-check them "
+            f"({prices_retrieved()}). Vendor prices change often, so re-check them "
             f"before trusting any figure below."
         )
     return None
@@ -104,14 +102,13 @@ def usage_from_raw(provider_name: str, raw: dict) -> dict:
 def cost_of(provider_name: str, model_id: str, raw: dict, searched: bool) -> float:
     """USD for a single call.
 
-    A provider that reports its own billed total takes precedence over the local
-    price table. Batch-level free allowances are NOT applied here -- this is the
-    marginal list price for one call; estimate.py applies allowances, since
-    headroom is a property of the batch.
+    A provider that reports its own billed total wins over the local price table.
+    Free monthly allowances are not applied here; this is the list price for one
+    call, and estimate.py handles allowances, since they depend on the whole batch.
 
-    Returns 0.0 for a model absent from pricing.json rather than raising, so an
-    unpriced model degrades the estimate instead of stopping the sweep. Callers
-    that care should check unpriced_models() up front.
+    Returns 0.0 for a model missing from pricing.json instead of raising, so an
+    unpriced model just weakens the estimate rather than stopping the sweep. Check
+    unpriced_models() up front if that matters.
     """
     provider = providers.PROVIDERS.get(provider_name)
     if provider:

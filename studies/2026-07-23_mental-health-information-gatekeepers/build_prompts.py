@@ -8,9 +8,9 @@ block the naked variants come first, then the same questions again with a source
 request appended, in the same order. This script pairs them up and emits the
 repository-root prompts.json with stable ids so runs are joinable across models.
 
-Self-contained on purpose: it resolves paths relative to its own location and
-imports nothing from the core tool, so a study folder stays portable and the
-core tool never needs to know a study exists.
+It is self-contained: it resolves paths relative to its own location and imports
+nothing from the core tool, so a study folder stays portable and the core tool
+never needs to know a study exists.
 
 Run from anywhere: python3 build_prompts.py
 """
@@ -38,9 +38,9 @@ BLOCKS = [
 ]
 
 # Topic slugs, in block order. The non-English blocks all cover the same three
-# topics. Note the Twi third question asks about coping strategies and where the
-# advice comes from rather than naming trustworthy sources outright -- it is the
-# nearest analogue in that block but is not a strict translation.
+# topics. The Twi third question asks about coping strategies and where the advice
+# comes from rather than naming trustworthy sources outright; it is the nearest
+# analogue in that block but not a strict translation.
 TOPICS_SHORT = ["dx-depression", "crisis-suicide", "trustworthy-sources"]
 TOPICS_EN = [
     "meds-depression",

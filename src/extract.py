@@ -3,22 +3,21 @@
 
 """Turn raw run records into a normalized source table.
 
-Two source channels are kept distinct, because collapsing them loses the
-difference between what a system formally cites and what it merely mentions:
+Two source channels are tracked separately, since a formal citation and a passing
+mention are not the same thing:
 
-  linked_structured -- the provider returned it as a citation object, i.e. what a
-                       consumer product would render as a clickable source chip.
-  linked_intext     -- a bare URL the model typed into its own prose, with no
-                       corresponding citation object.
+  linked_structured   the provider returned it as a citation object, i.e. what a
+                      consumer product would show as a clickable source chip.
+  linked_intext       a bare URL the model wrote into its prose, with no matching
+                      citation object.
 
-Both are deterministic: no model is used, so the output is reproducible from the
-saved raw responses alone. Sources named in prose without any URL ("the NIMH",
-"DSM-5") are deliberately NOT extracted here -- recognizing them requires an
-interpretive pass that should be built and validated separately rather than
-smuggled into a deterministic step.
+Neither channel uses a model, so the output is reproducible from the saved raw
+responses. Sources named in prose without a URL ("the NIMH", "DSM-5") are not
+extracted here; picking those up reliably needs an interpretive pass that should
+be built and validated on its own rather than folded into this step.
 
 Providers that return redirect or proxy URLs are resolved through their adapter's
-resolve_url(), with results cached so a re-run costs nothing.
+resolve_url(), and results are cached so a re-run makes no network calls.
 
 Run: python3 src/extract.py --models <model_key> [...]
 """
@@ -45,10 +44,10 @@ URL_RE = re.compile(r"https?://[^\s<>\"'\)\]\},;、。）】]+", re.UNICODE)
 # Trailing characters that are almost always punctuation, not part of the path.
 TRAILING = ".,;:!?'\"”’）】)]}>*_"
 
-# Public suffixes needing two labels to reach the registrable domain. This is a
-# curated subset, not the full Public Suffix List -- a complete PSL would mean a
-# third-party dependency, and this pipeline is deliberately dependency-free.
-# Add entries here if your prompt set targets regions not covered below.
+# Public suffixes that need two labels to reach the registrable domain. This is a
+# curated subset rather than the full Public Suffix List, since a complete PSL
+# would pull in a third-party dependency and this pipeline has none. Add entries
+# here if your prompt set targets regions not covered below.
 MULTI_SUFFIXES = {
     "co.uk", "org.uk", "nhs.uk", "ac.uk", "gov.uk", "net.uk", "sch.uk",
     "com.au", "org.au", "net.au", "gov.au", "edu.au",
@@ -79,13 +78,13 @@ def registrable_domain(url_or_host: str) -> str | None:
     host = host.split("@")[-1].split(":")[0].strip().lower().rstrip(".")
     if not host or " " in host:
         return None
-    # Strip www BEFORE the suffix logic below. Some entries in MULTI_SUFFIXES are
-    # also live sites in their own right (nhs.uk, gob.mx), so leaving www attached
-    # would keep three labels and split-count www.nhs.uk against nhs.uk.
+    # Strip www before the suffix check below. Some entries in MULTI_SUFFIXES are
+    # also live sites themselves (nhs.uk, gob.mx), so leaving www attached would
+    # keep three labels and split-count www.nhs.uk against nhs.uk.
     if host.startswith("www."):
         host = host[4:]
-    # Some providers return a bare domain rather than a URL, so plain hosts
-    # arrive here too and must pass through unchanged.
+    # Some providers return a bare domain instead of a URL, so plain hosts reach
+    # this point too and pass through unchanged.
     parts = host.split(".")
     if len(parts) < 2:
         return None
@@ -95,15 +94,16 @@ def registrable_domain(url_or_host: str) -> str | None:
 
 
 def tld_class(domain: str | None) -> str | None:
-    """Factual TLD bucket. NOT the organizational typology -- that is coded separately."""
+    """Bucket a domain by TLD. This is not the organizational typology, which is
+    coded separately."""
     if not domain:
         return None
     for suffix, label in (
         (".gov", "gov"), (".gov.uk", "gov"), (".nhs.uk", "gov"), (".gov.au", "gov"),
         (".gov.in", "gov"), (".nic.in", "gov"), (".go.jp", "gov"), (".gov.np", "gov"),
         (".gov.ua", "gov"), (".gov.gh", "gov"), (".gov.za", "gov"), (".govt.nz", "gov"),
-        # Spanish- and French-convention government suffixes: without these the
-        # non-English arms systematically under-count government sources.
+        # Spanish- and French-convention government suffixes. Without them the
+        # non-English arms under-count government sources.
         (".gob.mx", "gov"), (".gob.es", "gov"), (".gob.ar", "gov"), (".gob.cl", "gov"),
         (".gob.pe", "gov"), (".gouv.fr", "gov"), (".go.kr", "gov"), (".gov.br", "gov"),
         (".edu", "edu"), (".ac.uk", "edu"), (".edu.au", "edu"), (".ac.jp", "edu"),
@@ -153,8 +153,8 @@ def extract_record(rec: dict, cache: dict) -> dict:
             entry = cache[url]
             resolved_url, status = entry["resolved"] or url, entry["status"]
         domain = registrable_domain(resolved_url) if resolved_url else None
-        # Some providers put the bare domain in the title field, which is the
-        # only recoverable signal when an indirect URL fails to resolve.
+        # Some providers put the bare domain in the title field, which is all we
+        # have left when an indirect URL doesn't resolve.
         if not domain or indirect(resolved_url):
             domain = registrable_domain(title) or domain
         key = (channel, domain, resolved_url)
@@ -181,8 +181,8 @@ def extract_record(rec: dict, cache: dict) -> dict:
     for url in URL_RE.findall(text):
         url = clean_url(url)
         d = registrable_domain(url)
-        # A URL the model typed that also came back as a citation is the same
-        # source surfaced twice, not a second source.
+        # A URL the model typed that also came back as a citation is one source
+        # seen twice, not two sources.
         if d and d in structured_domains:
             continue
         add(url, None, "linked_intext")

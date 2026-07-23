@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2026 MindBench.ai
 
-"""Estimate what a full sweep will cost, by measuring a small sample first.
+"""Estimate what a full sweep will cost by measuring a small sample first.
 
-Token counts vary enormously across prompts -- longer questions retrieve more,
-and non-Latin scripts tokenize worse -- so projecting from one or two calls is
-unreliable. This samples across the axes most likely to move cost (language,
+Token counts vary a lot across prompts. Longer questions retrieve more, and
+non-Latin scripts tokenize worse, so projecting from one or two calls is
+unreliable. This samples across the things most likely to move cost (language,
 variant, prompt length), measures real spend, and extrapolates.
 
 Run before any large sweep:
@@ -14,7 +14,7 @@ Run before any large sweep:
     python3 src/estimate.py --sample 10     # wider sample, tighter estimate
     python3 src/estimate.py --models a b    # specific models
 
-Sampling costs money: roughly `sample x models x conditions` calls.
+Sampling itself costs money: roughly `sample x models x conditions` calls.
 """
 
 from __future__ import annotations
@@ -33,8 +33,8 @@ def stratified_sample(prompts: list[dict], n: int) -> list[dict]:
     """Pick n prompts spread across languages, variants, and text length.
 
     Round-robins languages so none dominates, and within a language orders by
-    variant then descending length -- the longest and shortest prompts bracket
-    the cost range, so hitting both makes the mean more honest.
+    variant then descending length. The longest and shortest prompts bracket the
+    cost range, so sampling both keeps the mean representative.
     """
     by_lang: dict[str, list[dict]] = {}
     for p in prompts:
@@ -83,7 +83,7 @@ def main() -> None:
     if cost_mod.have_pricing():
         unpriced = cost_mod.unpriced_models(args.models)
         if unpriced:
-            print(f"WARNING: no price entry for {', '.join(unpriced)} -- "
+            print(f"WARNING: no price entry for {', '.join(unpriced)}; "
                   f"these show as $0.00 and understate the total.\n")
 
     n_calls = sum(
@@ -126,14 +126,13 @@ def main() -> None:
     paths.ESTIMATE_OUT.write_text(json.dumps(rows, indent=2), encoding="utf-8")
 
     cells_per_arm = len(prompts) * args.runs
-    # Some providers report their own billed cost, which is accurate with or
-    # without a local price table -- so show the dollar summary whenever any
-    # real cost data exists, not only when pricing.json is present.
+    # Some providers report their own billed cost, which is right with or without
+    # a local price table, so show the dollar summary whenever any real cost data
+    # exists, not only when pricing.json is present.
     priced = cost_mod.have_pricing() or any(r["cost"] > 0 for r in rows)
 
-    # Token and call counts are exact regardless of pricing, and stay valid long
-    # after any price table has gone stale. They are the primary output; dollars
-    # are a convenience layer over them.
+    # Token and call counts hold regardless of pricing and stay valid after a
+    # price table is out of date, so they lead. Dollars are layered on top.
     print("\n" + "=" * 88)
     print(f"{'model':16}{'condition':12}{'calls':>8}{'in tok/call':>13}"
           f"{'out tok/call':>13}{'total in':>12}{'total out':>12}{'src':>7}")
@@ -184,7 +183,7 @@ def main() -> None:
     print("-" * 55)
     print(f"{'list price':28}{'':14}${grand:>12.2f}")
 
-    # Free allowances are batch-level, so they are applied once per provider
+    # Free allowances depend on the whole batch, so apply them once per provider
     # here rather than inside the per-call cost.
     net = grand
     for prov, calls in grounded_by_provider.items():

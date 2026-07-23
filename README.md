@@ -1,37 +1,37 @@
 # mindbench-api-search-audit
 
-**Which external sources do search-enabled LLM APIs cite when you ask them
-questions?**
+Which external sources do search-enabled LLM APIs cite when you ask them
+questions?
 
 Point this at a set of questions and a set of models. It runs every question
-against every model, repeatedly, and extracts every source cited — resolved to
-real publisher domains, deduplicated, and written as JSON you can analyze.
+against every model, repeatedly, and extracts every source cited, resolving each
+to a real publisher domain, deduplicating, and writing the result as JSON.
 
-Built for a mental health information audit (see
+It was built for a mental health information audit (see
 [`studies/2026-07-23_mental-health-information-gatekeepers/`](studies/2026-07-23_mental-health-information-gatekeepers/README.md)),
-but nothing in the tool is specific to that topic. Swap `prompts.json` for your
-own questions and `config.json` for your own models.
-
-Useful for auditing what any answer engine routes users toward: health, legal,
-financial, electoral, or any domain where source provenance matters.
+but nothing in the tool is specific to that topic. Replace `prompts.json` with
+your own questions and `config.json` with your own models. The same approach
+works for auditing what an answer engine surfaces in any domain where source
+provenance matters (health, legal, financial, electoral, and so on).
 
 ## Why this exists
 
-Answer engines synthesize prose and cite a handful of sources chosen by the
-system, not the user. Auditing that choice means running many questions many
-times and normalizing what comes back — which is tedious, and easy to get subtly
-wrong. In particular:
+Answer engines write prose and cite a few sources chosen by the system rather
+than the user. Studying that choice means running many questions many times and
+normalizing what comes back, which is tedious and easy to get wrong in a few
+specific ways:
 
-- Retrieval is **nondeterministic**: the same question asked twice cites
-  different sources. Single-shot testing measures noise.
-- Some providers return **redirect URLs** that hide the real publisher. Counting
-  those naively gives you one domain for the entire corpus.
-- Web-search calls can cost **50× a plain completion**, because retrieved content
-  is often billed as input tokens. Unmeasured, a sweep gets expensive fast.
-- A model that **declines to search** is a finding. Retrying until sources appear
-  silently deletes it.
+- Retrieval is nondeterministic. The same question asked twice cites different
+  sources, so a single query per question mostly measures noise.
+- Some providers return redirect URLs that hide the real publisher. Count those
+  as-is and the whole corpus collapses to one domain.
+- A web-search call can cost far more than a plain completion, because retrieved
+  content is often billed as input tokens. It adds up quickly if you don't watch
+  it.
+- A model that chooses not to search is itself a result. Retrying until sources
+  appear throws that away.
 
-This handles all four.
+The tool is built around these four problems.
 
 ## Quickstart
 
@@ -44,19 +44,19 @@ python3 src/runner.py              # run it
 python3 src/extract.py --models openai-54mini gemini-35flash pplx-sonar
 ```
 
-Python 3.9+. **No third-party packages** — everything is standard library, so
-there is nothing to install and no dependency drift when you rerun this in a year.
+Python 3.9+ and no third-party packages: it uses only the standard library, so
+there is nothing to install and nothing to break when you come back to it later.
 
 ## Using your own questions
 
-Open **`editor.html`** in a browser for a table UI over `prompts.json`: add,
-edit, delete, filter by language. It validates as you type — duplicate ids, empty
-text, and topics missing a variant counterpart. Click **Download prompts.json**
-and move it over the repo copy.
+Open `editor.html` in a browser for a table view of `prompts.json`. You can add,
+edit, delete, and filter prompts by language, and it validates as you type
+(duplicate ids, empty text, topics missing their variant counterpart). Click
+Download prompts.json and move the file over the repo copy.
 
-A prompt is an object with a stable `prompt_id` (derived from
-`language`-`topic`-`variant`, so it can't drift from its fields) plus `text` and
-whatever metadata you want to group by:
+A prompt is an object with a stable `prompt_id` (built from
+`language`-`topic`-`variant`, so it stays in sync with those fields), the prompt
+`text`, and whatever metadata you want to group by:
 
 ```json
 {
@@ -68,13 +68,13 @@ whatever metadata you want to group by:
 }
 ```
 
-`language`, `topic`, and `variant` are the only fields the tool relies on.
-`variant` supports paired designs — asking the same question with and without an
-explicit request for sources — but nothing forces you to use it.
+The tool only relies on `language`, `topic`, and `variant`. The `variant` field
+supports paired designs, where the same question is asked with and without an
+explicit request for sources, but you don't have to use it.
 
 ## Using your own models
 
-Everything is declared in `config.json`; no code changes needed.
+Models are declared in `config.json`, with no code changes:
 
 ```json
 "models": {
@@ -90,98 +90,99 @@ Everything is declared in `config.json`; no code changes needed.
 
 | Field | Meaning |
 |---|---|
-| `provider` | an adapter in `providers.PROVIDERS` — currently `openai`, `gemini`, `perplexity` |
+| `provider` | an adapter in `providers.PROVIDERS`; currently `openai`, `gemini`, `perplexity` |
 | `model_id` | the provider's own slug |
-| `supports_search_off` | `false` for retrieval-native APIs that can't run tool-free |
-| `options` | passed to the adapter; each adapter's docstring lists honored keys, and `extra_payload` merges arbitrary fields into the request |
+| `supports_search_off` | `false` for retrieval-native APIs that can't run without search |
+| `options` | passed to the adapter; each adapter's docstring lists the keys it reads, and `extra_payload` merges arbitrary fields into the request |
 
-Other config: `dataset` (names the `data/<dataset>/` output folder — give each
-study its own so results never collide), `conditions` (`search_on` /
-`search_off`), `runs_per_prompt`, `workers`, `max_cost_usd`. All overridable by
-CLI flag.
+Other config fields: `dataset` (names the `data/<dataset>/` output folder; give
+each study its own so results don't collide), `conditions` (`search_on` /
+`search_off`), `runs_per_prompt`, `workers`, and `max_cost_usd`. Each can be
+overridden with a CLI flag.
 
-**Adding a provider** means subclassing `Provider` in `src/providers.py` with a
-`call()` and a `usage()`, then registering it. If the API reports its own billed
-cost, override `reported_cost()`; if it returns redirect URLs, override
-`is_indirect_url()` and `resolve_url()` and extraction resolves them
-automatically. The class docstring has a worked template.
+To add a provider, subclass `Provider` in `src/providers.py` with a `call()` and
+a `usage()`, then register it. Override `reported_cost()` if the API reports its
+own billed cost, and `is_indirect_url()` / `resolve_url()` if it returns redirect
+URLs, which extraction then resolves. There is a worked template in the class
+docstring.
 
 ## Cost control
 
-Web search is the expensive part, and providers bill it differently — some charge
+Web search is the expensive part, and providers bill it differently: some charge
 per call, some also bill retrieved content as input tokens, some bundle it. Run
-`src/estimate.py` first: it samples across languages and prompt lengths, measures
+`src/estimate.py` first. It samples across languages and prompt lengths, measures
 actual usage, and projects the full sweep.
 
-**`pricing.json` is not committed, on purpose.** Vendor prices change often, and a
-stale table is worse than none — it produces a confident number that is quietly
-wrong. So the estimator's primary output is **token counts and call counts**,
-which never go stale:
+`pricing.json` is not committed. Vendor prices change often, and a stale price
+table gives you a confident number that happens to be wrong, so the estimator's
+main output is token and call counts, which don't go out of date:
 
 ```
 model           condition      calls  in tok/call out tok/call    total in   total out    src
 pplx-sonar      search_on        380           22          471       8,487     179,107   12.0
 ```
 
-Multiply those by current vendor prices, and add each provider's per-search-call
-fee, for a dollar figure. To have the tool do that arithmetic, copy
-`pricing.example.json` to `pricing.json` and fill in prices you have just checked.
-It then also prints a dollar table — and warns if the file is over 90 days old,
+Multiply those by current prices and add each provider's per-search-call fee to
+get a dollar figure. To have the tool do that arithmetic, copy
+`pricing.example.json` to `pricing.json` and fill in prices you've just checked.
+It will then print a dollar table, and warn if the file is more than 90 days old,
 undated, or missing an entry for a model you're running. Providers that report
-their own billed cost (Perplexity) are accurate either way.
+their own billed cost (Perplexity) are accurate with or without the file.
 
-Three independent brakes on a running sweep:
+There are three ways to stop a running sweep:
 
-1. **Ctrl-C** — no new calls start; in-flight calls finish. Again to exit now.
-2. **`touch data/STOP`** — same, and works on a backgrounded run.
-3. **`--max-cost N`** — aborts once measured spend crosses N USD.
+1. Ctrl-C. No new calls start; in-flight calls finish. Press it again to exit
+   immediately.
+2. `touch data/STOP`. Same effect, and it works on a backgrounded run.
+3. `--max-cost N`. Aborts once measured spend crosses N dollars.
 
-All are checked *between* calls, so stopping never discards a response you paid
-for — which means a stop takes up to ~60s. The cost ceiling is soft: in-flight
-calls still land, so overshoot is bounded by roughly `workers × cost-per-call`.
+All three are checked between calls, not mid-call, so stopping never throws away
+a response you already paid for, and a stop can take up to about 60 seconds. The
+cost ceiling is soft: calls already in flight still land, so the overshoot is
+bounded by roughly `workers × cost-per-call`.
 
-Runs are **resumable**. Re-running the same command skips completed cells.
+Runs resume. Re-running the same command skips cells that already completed.
 
 ## Output
 
-All output lands under **`data/<dataset>/`**, where `<dataset>` is set by the
-`dataset` field in `config.json` (or the `AUDIT_DATASET` env var). Each distinct
-study therefore gets its own directory and can never overwrite another's results.
-The runner refuses to append to a dataset whose recorded prompt fingerprint
-differs from the current `prompts.json` — so pointing new questions at an old
-dataset fails loudly instead of silently interleaving two studies (override with
-`--force`). Paths below are relative to that dataset directory.
+Everything is written under `data/<dataset>/`, where `<dataset>` comes from the
+`dataset` field in `config.json` (or the `AUDIT_DATASET` env var). Each study
+gets its own directory and can't overwrite another's results. The runner also
+refuses to append to a dataset whose recorded prompt fingerprint differs from the
+current `prompts.json`, so pointing new questions at an old dataset fails with a
+clear error rather than quietly mixing two studies together (use `--force` to
+override). Paths below are relative to the dataset directory.
 
-**`raw/<model>.jsonl`** — one line per call, retaining the **complete raw
-provider response**. Extraction can be redesigned and re-run at zero API cost;
-nothing is discarded at collection time.
+`raw/<model>.jsonl` holds one line per call, with the complete raw provider
+response. Extraction can be rewritten and re-run against these at no API cost;
+nothing is dropped at collection time.
 
-**`sources.json`** — the normalized table. Each source carries:
+`sources.json` is the normalized table. Each source has:
 
 | field | meaning |
 |---|---|
-| `channel` | `linked_structured` (a real citation object) or `linked_intext` (a bare URL in prose) |
+| `channel` | `linked_structured` (a citation object) or `linked_intext` (a bare URL in prose) |
 | `domain` | registrable domain, lowercased, no `www` |
-| `tld_class` | mechanical `gov`/`edu`/`org`/`com`/`other` bucket — **not** an organizational typology |
+| `tld_class` | a `gov`/`edu`/`org`/`com`/`other` bucket by TLD, which is not an organizational typology |
 | `url` | resolved publisher URL |
 | `raw_url` | the pre-resolution URL, if it was a redirect |
 | `http_status` | status seen while resolving |
 
-Extraction is fully deterministic — no model is involved, so results are
-reproducible from the saved responses. Sources *named* in prose without a URL
-("the NIMH", "DSM-5") are deliberately not extracted; recognizing those needs an
-interpretive pass that belongs in a separate, separately-validated step.
+Extraction uses no model, so its output is reproducible from the saved responses.
+Sources named in prose without a URL ("the NIMH", "DSM-5") are not extracted;
+picking those up reliably takes an interpretive pass that belongs in its own,
+separately validated step.
 
-**`run_manifest.jsonl`** — provenance per sweep: timestamp, model slugs,
+`run_manifest.jsonl` records provenance for each sweep: timestamp, model slugs,
 price-table date, and a SHA-256 of `prompts.json`. If that fingerprint changes,
-results from before and after are not directly comparable — and the runner
-enforces this, refusing to mix instruments within one dataset.
+results before and after it are no longer directly comparable, and the runner
+enforces that by refusing to mix instruments within one dataset.
 
 ## Repository layout
 
 ```
 config.json          experiment definition: models, conditions, runs
-pricing.example.json committed template for prices (copy to pricing.json)
+pricing.example.json template for prices (copy to pricing.json)
 prompts.json         the active prompt set
 editor.html          browser UI for editing prompts
 src/
@@ -194,36 +195,37 @@ src/
 studies/             one folder per study run with this tool, e.g.
   2026-07-23_mental-health-information-gatekeepers/
 data/                all generated output (gitignored)
-  <dataset>/         one subfolder per dataset; raw/, sources.json, manifest
+  <dataset>/         one subfolder per dataset: raw/, sources.json, manifest
 ```
 
-Each folder under `studies/` is a self-contained record of one audit: its frozen
-prompt set, the price table in force at the time, and a README documenting the
-design and caveats. Naming convention is `YYYY-MM-DD_short-slug`, so runs sort
-chronologically. To reproduce a study, copy its frozen prompts to the repo root
-(see that study's README) before running the sweep.
+Each folder under `studies/` records one audit: its frozen prompt set, the price
+table in force at the time, and a README covering the design and caveats. The
+naming convention is `YYYY-MM-DD_short-slug` so runs sort by date. To reproduce a
+study, copy its frozen prompts to the repo root (its README shows the command)
+before running the sweep.
 
 ## Caveats
 
-- **Model slugs expire.** Providers retire them without much notice. Verify before
-  any run; the manifest records what was actually used.
-- **Prices change.** `pricing.json` is local and stamped with a retrieval date;
-  the estimator warns past 90 days. Token counts stay valid indefinitely.
-- **Redirect resolution is undocumented behavior.** It reads only the `Location`
-  header and never fetches the destination page, but providers can change it.
-- **Some providers retain your prompts.** Google retains grounding data for 30
-  days and this cannot be disabled. Check terms before sending sensitive prompts.
-- **`tld_class` is not a source typology.** Any organizational classification is a
-  separate, human-validated step.
+- Model slugs get retired, often without much notice. Check them before a run;
+  the manifest records what was actually used.
+- Prices change. `pricing.json` is local and dated, and the estimator warns once
+  it is over 90 days old. Token counts stay valid regardless.
+- Redirect resolution relies on undocumented provider behavior. It reads only the
+  `Location` header and never fetches the destination page, but a provider could
+  change it.
+- Some providers retain your prompts. Google keeps grounding data for 30 days and
+  this can't be turned off. Check the terms before sending anything sensitive.
+- `tld_class` is a TLD bucket, not a source typology. Any organizational
+  classification is a separate, hand-validated step.
 
 ## License
 
 [GNU Affero General Public License v3.0 or later](LICENSE) (AGPL-3.0-or-later).
 
-You may use, modify, and redistribute this freely, including commercially. The
-one condition that matters: if you modify it and offer it to others **over a
-network** — a hosted service, an API, a web app — you must make your modified
-source available to those users under the same license. This keeps derived
-audit tooling open rather than folded into a closed product.
+You can use, modify, and redistribute this freely, including commercially. The
+one real condition: if you modify it and offer it to others over a network (a
+hosted service, an API, a web app), you have to make your modified source
+available to those users under the same license. That keeps derived audit tooling
+open rather than closed back up inside a product.
 
 Contributions are accepted under the same license.

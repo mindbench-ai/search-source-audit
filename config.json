@@ -31,7 +31,7 @@
 
   "_help": {
     "dataset": "Names the output namespace: results land in data/<dataset>/. Give each distinct study its own name so their raw responses never collide. Override for a one-off run with the AUDIT_DATASET env var. If omitted, falls back to `experiment`, then \"default\".",
-    "models": "Define any model here. `provider` must be a key in providers.PROVIDERS (openai, gemini, perplexity). `model_id` is the provider's own slug. Optional `options` is passed to the adapter -- see each adapter's docstring for honored keys. Adding a model needs no code change.",
+    "models": "Define any model here. `provider` must be a key in providers.PROVIDERS (openai, gemini, perplexity). `model_id` is the provider's own slug. Optional `options` is passed to the adapter; see each adapter's docstring for the keys it reads. Adding a model needs no code change.",
     "active_models": "Which of the above a bare `runner.py` run uses. Override with --models.",
     "conditions": "search_on runs with the provider's web-search/grounding tool enabled; search_off runs the same prompt with no tools. Models whose API always retrieves must set supports_search_off: false.",
     "runs_per_prompt": "Repeats of an identical prompt. Values above 1 measure retrieval nondeterminism; provider default temperature is used so repeats actually vary.",

@@ -1,16 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2026 MindBench.ai
 
-"""Single source of truth for repository paths and experiment config.
+"""Repository paths and experiment config in one place.
 
-Every script resolves paths through here so the layout can change in one place,
-and so nothing writes outside the gitignored data/ directory by accident.
+Every script resolves paths through here, so the layout can change in one place
+and nothing writes outside the gitignored data/ directory by accident.
 
-Outputs are namespaced per DATASET: data/<dataset>/. Two different studies --
-different questions, different models -- therefore never write into the same
-files, even if run from the same checkout. The dataset name comes from the
-AUDIT_DATASET env var, else config.json's `dataset`, else its `experiment`, else
-"default". See dataset_name().
+Output is namespaced per dataset, under data/<dataset>/, so two studies with
+different questions or models never write to the same files even from the same
+checkout. The dataset name comes from the AUDIT_DATASET env var, else config
+`dataset`, else config `experiment`, else "default". See dataset_name().
 """
 
 from __future__ import annotations
@@ -21,9 +20,9 @@ import pathlib
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 
-# Committed inputs. Note there is deliberately no reference to any studies/
-# folder here: the core tool is study-agnostic, and each study under studies/
-# resolves its own materials relative to its own location.
+# Committed inputs. Nothing here points at the studies/ folder: the core tool is
+# study-agnostic, and each study under studies/ resolves its own materials
+# relative to its own location.
 PROMPTS = REPO / "prompts.json"
 CONFIG = REPO / "config.json"
 PRICING = REPO / "pricing.json"           # gitignored; user-supplied
@@ -55,9 +54,9 @@ def dataset_name() -> str:
 
     Resolution order: AUDIT_DATASET env var, then config `dataset`, then config
     `experiment`, then "default". The env var wins so a one-off run can redirect
-    output without editing config; config `dataset` is the normal per-study knob.
-    Falls back to "default" rather than raising if config.json is unreadable, so
-    importing this module never fails.
+    output without editing config; config `dataset` is the usual per-study
+    setting. Falls back to "default" instead of raising if config.json can't be
+    read, so importing this module never fails.
     """
     env = os.environ.get("AUDIT_DATASET")
     if env:
@@ -95,10 +94,10 @@ def prompts_fingerprint() -> str:
 
 
 def last_manifest_fingerprint() -> str | None:
-    """prompts_sha256 of the most recent run recorded in THIS dataset, or None.
+    """prompts_sha256 of the most recent run in this dataset, or None.
 
-    Used to catch the common footgun of reusing a dataset for a different set of
-    prompts, which would silently interleave two studies in one set of files.
+    Lets the runner catch a dataset being reused for a different set of prompts,
+    which would otherwise interleave two studies in one set of files.
     """
     if not RUN_MANIFEST.exists():
         return None

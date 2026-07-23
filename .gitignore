@@ -1,4 +1,4 @@
-# Secrets. Never commit real keys -- see .env.example for the expected shape.
+# Secrets. Never commit real keys; see .env.example for the expected shape.
 .env
 .env.*
 !.env.example
@@ -8,8 +8,8 @@
 # may be large and may carry provider-specific terms on redistribution.
 data/
 
-# Price tables go stale fast, and a stale table produces confidently wrong
-# estimates. Keep yours local; pricing.example.json is the committed template.
+# Price tables go stale fast, and a stale one gives wrong estimates. Keep yours
+# local; pricing.example.json is the committed template.
 pricing.json
 
 # Python
