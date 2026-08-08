@@ -24,3 +24,7 @@ venv/
 .vscode/
 .idea/
 *.swp
+
+# Exported platform artifacts. Regenerable from runs/ + the lexicons by
+# platform/export_platform_artifact.py, so the payload is output, not an input.
+platform/out/
