@@ -1,58 +1,40 @@
-"""Build the corrected API-arm CSVs for the HuggingFace dataset release.
+"""Build the API-arm CSVs for the HuggingFace dataset release.
 
-The API tables first uploaded to MindBench/search-source-audit (2026-08-17) were
-generated from an older instrument vocabulary and without this repo's extraction
-output. A cell-by-cell reconciliation against results/raw/ (2026-08-19) found
-them faithful to the raw run under a citations-as-occurrences definition, with
-three defects this script corrects. The product-arm files are untouched ground
-truth; the point of every fix is to bring the API arm into line with them.
+Reads an input pair of API tables (--released) plus this folder's results/
+and writes the release pair (--out). Three transformations:
 
-  1. TOPIC VOCABULARY. Eight of the twenty English topics were renamed between
-     the API instrument and the product arm (e.g. api `meds-depression` vs
-     product `med-depression`). The upload mapped topic -> topic_category with
-     the product spellings only, so those eight topics - 2,542 citation rows and
-     240 response rows - shipped with a BLANK topic_category, silently dropping
-     three of the eight question categories from the API arm. Topics are
-     normalized to the product slugs (the crosswalk below was matched on
-     question text, all eight pairs identical) and every row gets its category.
+  1. Topic vocabulary. The API and product instruments name eight of the twenty
+     English topics differently; the product slugs and their functional
+     categories are canonical. Topics go through the crosswalk below (each
+     pair is the identical question) and every row carries a topic_category.
 
-  2. GEMINI IN-TEXT CITATIONS. The upload read only Gemini's structured
-     groundingChunks. Gemini also cites by writing markdown links into the
-     response prose - the `linked_intext` channel in results/sources.json, 243
-     sources across 76 calls, including 8 calls whose ONLY citations were in
-     prose and which therefore looked like zero-citation calls. These rows are
-     added, and a `channel` column ("structured" / "in_text") makes the two
-     kinds distinguishable so the previous counts remain recoverable.
+  2. Citation channels. Gemini cites two ways: structured groundingChunks
+     metadata, and markdown links written into the response prose (the
+     `linked_intext` channel in results/sources.json). Both become rows, with a
+     `channel` column ("structured" / "in_text"), so either definition of a
+     citation can be selected downstream.
 
-  3. RESOLVED_URL SEMANTICS. The dataset card says resolved_url "holds the
-     destination after HTTP resolution - prefer resolved_url where populated."
-     The upload had it inverted: empty for all 2,482 vertexai redirect rows,
-     and a byte-identical copy of `url` for the 1,630 non-redirect Gemini rows.
-     Redirect rows are backfilled from results/redirect_cache.json (the
-     resolutions recorded during the run); copy rows are blanked so the column
-     is populated exactly where a resolution happened.
+  3. Redirect resolution. Gemini returns citation URLs as opaque redirects via
+     vertexaisearch.cloud.google.com. `resolved_url` carries the destination
+     recorded in results/redirect_cache.json, populated exactly where a
+     resolution exists; `url` stays as returned.
 
-Plus one cosmetic alignment: the handful of rows whose host sits directly on a
-public suffix (www.nhs.uk and friends) carried domain == "www."+tld; the product
-arm's convention is host stripped of leading www and domain == tld, and the API
-rows now follow it.
+Host and domain follow the product arm's conventions: hosts carry no leading
+www, and a site living directly on a public suffix has domain == tld.
 
-New in-text rows are classified with source_classifier.py - a verbatim
-extraction of the notebook classifier that produced the product arm - and their
-suffix/bucket/locality columns are derived from vocabularies harvested at
-runtime from the released API file itself, so the conventions cannot drift from
-the data they extend. The harvested is_local rule is asserted to reproduce every
-released row before it is applied to a single new one.
+In-text rows are typed with source_classifier.py, the same rules that type
+the product arm. Suffix, bucket, and locality vocabularies come from the input
+API file at runtime, and the locality rule must reproduce every input row
+before it labels a new one.
 
 Usage (from the study directory):
     python3 hf_api_export.py --released results/hf/released [--out results/hf/corrected]
 
-  --released must contain the CSVs as uploaded: api_sources_annotated.csv and
-  api_responses.csv (download them from the HF repo). Output goes under the
-  gitignored results/ tree: the corrected CSVs plus export_report.json, which
-  records every count this script changed and every fallback it took.
+  --released holds the input api_sources_annotated.csv and api_responses.csv.
+  Output goes under the gitignored results/ tree, with an export_report.json
+  recording every count changed and every fallback taken.
 
-Everything here is deterministic and offline: no network, no model, stdlib only.
+Deterministic and offline: no network, no model, stdlib only.
 """
 from __future__ import annotations
 
@@ -73,9 +55,9 @@ RESULTS = STUDY / "results"
 
 REDIRECT_HOST = "vertexaisearch.cloud.google.com"
 
-# API-instrument topic slug -> product-arm slug (the ground truth). Matched on
-# question text; every pair is the identical question (Jaccard 1.00), see the
-# reconciliation of 2026-08-19. The twelve other topics already share slugs.
+# API-instrument topic slug -> product-arm slug (canonical). Each pair is the
+# identical question, matched on question text; the twelve other topics
+# already share slugs.
 TOPIC_XWALK = {
     "meds-depression": "med-depression",            # What medications are there for Depression?
     "meds-anxiety": "med-anxiety",                  # What medications are there for Anxiety?
@@ -165,9 +147,9 @@ def main() -> int:
     local_by_cell = {r["cell_id"]: r for r in local}
 
     if len(resp_rows) != len(local) or {r["cell_id"] for r in resp_rows} != set(local_by_cell):
-        raise SystemExit("released api_responses.csv does not cover the run's 1,140 cells")
+        raise SystemExit("input api_responses.csv does not cover the run's 1,140 cells")
 
-    # ---- vocabularies harvested from the released file itself -------------------
+    # ---- vocabularies taken from the input file itself ----------------------------
     suffixes = {r["tld"] for r in src_rows if r["tld"]}
     tld_bucket = {r["tld"]: r["tld_bucket"] for r in src_rows if r["tld"] and r["tld_bucket"]}
     cc: dict[str, set[str]] = collections.defaultdict(set)
@@ -175,7 +157,7 @@ def main() -> int:
         if r["language"] != "en" and truthy(r["is_local_source"]) and r["tld"]:
             cc[r["language"]].add(r["tld"].split(".")[-1])
 
-    # The locality rule must reproduce every released row before it may label a new one.
+    # The locality rule must reproduce every input row before it labels a new one.
     bad = sum(
         1
         for r in src_rows
@@ -184,10 +166,10 @@ def main() -> int:
         != ((r["tld"].split(".")[-1] if r["tld"] else "") in cc.get(r["language"], set()))
     )
     if bad:
-        raise SystemExit(f"harvested is_local rule fails on {bad} released rows - inspect before exporting")
+        raise SystemExit(f"is_local rule fails on {bad} input rows - inspect before exporting")
 
-    # Redirect resolutions recorded during the run; sources.json as fallback for
-    # tokens the cache misses (it recorded per-URL, dedup happened later).
+    # Redirect destinations, from the cache first; sources.json fills tokens
+    # the cache misses.
     resolved: dict[str, str] = {
         u: v["resolved"] for u, v in cache.items() if isinstance(v, dict) and v.get("resolved")
     }
@@ -196,7 +178,7 @@ def main() -> int:
             if s.get("raw_url") and s.get("url") and s["url"] != s["raw_url"]:
                 resolved.setdefault(s["raw_url"], s["url"])
 
-    # ---- pass 1: correct the released citation rows ------------------------------
+    # ---- normalize the input citation rows ----------------------------------------
     n = collections.Counter()
     by_cell: dict[str, list[dict]] = collections.defaultdict(list)
     for r in src_rows:
@@ -263,7 +245,7 @@ def main() -> int:
             })
             n["intext_added"] += 1
 
-    # ---- assemble, preserving the released response-row order --------------------
+    # ---- assemble, in the input response-row order ---------------------------------
     out_src = [row for r in resp_rows for row in by_cell.get(r["cell_id"], [])]
     out_resp = []
     for r in resp_rows:

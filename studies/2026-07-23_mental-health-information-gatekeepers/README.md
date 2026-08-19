@@ -100,18 +100,20 @@ DOI 10.57967/hf/10029) carries both audit arms. The product-arm tables are the
 hand-coded ground truth and are produced elsewhere; the API-arm tables derive
 from this study's raw responses.
 
-`hf_api_export.py` builds the corrected API-arm CSVs: it takes the
-as-uploaded tables plus this folder's `results/` and fixes three defects found
-in the 2026-08-19 reconciliation — the topic-slug drift that blanked
-`topic_category` for 8 of 20 topics (this instrument predated the product arm's
-final slugs; the product vocabulary is canonical), the missing Gemini in-text
-citation channel (243 sources, now marked by a `channel` column), and the
-inverted `resolved_url` semantics. `source_classifier.py` is a verbatim
-extraction of the product notebook's classifier so new rows are typed by
-exactly the instrument that typed the product arm.
+- `hf_api_export.py` builds the API-arm CSVs from this folder's `results/`:
+  topics in the product arm's vocabulary (canonical), both Gemini citation
+  channels (structured grounding and in-text prose links, distinguished by a
+  `channel` column), and redirect destinations in `resolved_url`.
+- `source_classifier.py` is the notebook's source-type classifier and
+  language-signal patterns as an importable module;
+  `check_classifier_sync.py` keeps it identical to the notebook.
+- `analysis/` holds the functions behind the reported statistics — citation
+  volume, domain concentration, source-type composition, cross-lingual
+  routing, retrieval invocation. `python3 -m analysis` prints them.
 
 ```bash
 python3 hf_api_export.py --released results/hf/released   # -> results/hf/corrected/
+python3 -m analysis
 ```
 
 One definitional note: these tables count citation *occurrences* as presented

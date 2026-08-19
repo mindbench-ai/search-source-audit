@@ -1,15 +1,11 @@
-"""The source-type typology classifier and language-signal detector, as one module.
+"""Source-type classifier and language-signal patterns, importable.
 
-VERBATIM EXTRACTION - do not edit the rule tables here. TYPE_ORDER through
-classify_type() are lifted character-for-character from the "3. The source-type
-classifier" cell of product_audit_reproduction.ipynb (commit 8ccfe9a), and SIG
-from its Figure-5 cell, so that the API-arm export (hf_api_export.py) classifies
-new rows with exactly the classifier that produced the product arm - the ground
-truth. When the notebook's classifier changes, re-extract; when this needs to
-change, change the notebook first. The notebook can import from this module in
-a later cleanup so the rules live in one place.
+TYPE_ORDER through classify_type() and SIG are verbatim copies of the
+classifier and Figure-5 cells of product_audit_reproduction.ipynb. The
+notebook is the source of truth for the rules: edit it there, then re-extract.
+check_classifier_sync.py exits nonzero if the copies differ.
 
-Stdlib only, like the rest of the repo.
+Stdlib only.
 """
 
 TYPE_ORDER = [
