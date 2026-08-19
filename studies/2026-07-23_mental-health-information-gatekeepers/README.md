@@ -8,7 +8,7 @@ the published results can be traced back to the exact setup that produced them.
 
 This is the API side of a broader audit of consumer AI search products as
 gatekeepers of mental health information. A separate product arm hand-codes the
-free logged-out versions of ChatGPT, Gemini, and Perplexity. This arm checks
+free logged-out versions of ChatGPT, Perplexity, and Google's AI Overview. This arm checks
 whether the bare APIs surface the same sources those products show users.
 
 | | |
