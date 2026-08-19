@@ -72,6 +72,24 @@ def main() -> int:
           f"top-10 EN {domains.top_share(am_en, 10):.1f}%  |  {label}: "
           f"{domains.distinct_domains(pm_en):3d} EN, top-10 {domains.top_share(pm_en, 10):.1f}%")
 
+    P("\n== Volume and composition by question category (English) ==")
+    cats = sorted({r["topic_category"] for r in p_resp_en})
+    for cat in cats:
+        resp_cat = [r for r in p_resp_en if r["topic_category"] == cat]
+        src_cat = [r for r in p_src_en if r["topic_category"] == cat]
+        shares_cat = composition.type_shares(src_cat)
+        top = max(TYPE_ORDER, key=lambda t2: shares_cat[t2])
+        P(f"  {cat:24s} mean {volume.mean_citations(resp_cat):5.1f} c/r | top type {top} {shares_cat[top]:.1f}% | commercial {shares_cat['commercial health']:.1f}%")
+
+    P("\n== Named-domain shares within each platform's English citations ==")
+    for dom in ("wikipedia.org", "youtube.com"):
+        row = f"  {dom:15s}"
+        for prov, label, _ in PAIRS:
+            sub = [r for r in p_src_en if r["provider"] == prov]
+            hits = sum(1 for r in sub if r["domain"] == dom)
+            row += f"  {label[:10]} {pct(hits, len(sub)):4.1f}%"
+        P(row)
+
     P("\n== Source-type composition (English) ==")
     ps = composition.type_shares(p_src_en)
     as_ = composition.type_shares(api_src_en)
