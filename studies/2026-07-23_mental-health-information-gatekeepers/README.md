@@ -83,6 +83,12 @@ Outputs go to `data/2026-07-23_mental-health-information-gatekeepers/`, set by
 checks it against the prompt fingerprint, so rerunning with these prompts resumes
 the existing results instead of starting over or mixing in another study.
 
+Since 2026-08-06 that path is a symlink into this folder's `results/`, so the
+run's outputs sit next to the instrument that produced them. Nothing about the
+tool changed: it still writes and resumes through `data/`. `results/` is
+gitignored; `RESULTS.md` is the tracked inventory (counts and checksums) and
+`RESULTS.sha256` verifies a copy with `shasum -a 256 -c`.
+
 Model slugs were checked on 2026-07-23 and will be retired by the providers
 eventually, at which point an exact rerun won't be possible. `config.json` and
 the run manifest record what was used.

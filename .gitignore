@@ -6,7 +6,18 @@
 # All generated output: raw API responses, extracted sources, caches, manifests.
 # Nothing in here is an input, and raw/ contains full provider responses which
 # may be large and may carry provider-specific terms on redistribution.
+# Since 2026-08-06 data/<dataset> is a symlink into studies/<slug>/results/ so a
+# run's outputs live with the study that produced them; the tool is unchanged and
+# still resolves everything through data/.
 data/
+
+# Results moved in with their studies on 2026-08-06 but stay OUT of git pending a
+# tracking decision. 33 MB of full provider responses would be permanent history;
+# repo hygiene says no large data files (docs/02-findings C4) and results travel
+# as Zenodo DOI pointers (docs/repo-naming.csv row 16). studies/<slug>/RESULTS.md
+# is the tracked inventory: checksums, counts, and where the bytes actually are.
+# Delete the line below to start tracking result data.
+studies/*/results/
 
 # Price tables go stale fast, and a stale one gives wrong estimates. Keep yours
 # local; pricing.example.json is the committed template.
