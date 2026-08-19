@@ -1,7 +1,10 @@
-# mindbench-api-search-audit
+# search-source-audit
 
 Which external sources do search-enabled LLM APIs cite when you ask them
 questions?
+
+*Renamed from `mindbench-api-search-audit` and moved to the `mindbench-ai` org on
+2026-08-06 (docs/repo-naming.csv). GitHub redirects the old URLs.*
 
 Point this at a set of questions and a set of models. It runs every question
 against every model, repeatedly, and extracts every source cited, resolving each

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Configure experiment — mindbench-api-search-audit</title>
+<title>Configure experiment — search-source-audit</title>
 <style>
   :root {
     --bg:#fff; --fg:#16181d; --muted:#5c6370; --line:#e2e5ea; --panel:#f6f7f9;
@@ -100,7 +100,7 @@
 <body>
 <header>
   <h1>Configure experiment</h1>
-  <div class="sub" id="subtitle">mindbench-api-search-audit</div>
+  <div class="sub" id="subtitle">search-source-audit</div>
   <div class="tabs">
     <button class="tab active" data-tab="experiment">Experiment</button>
     <button class="tab" data-tab="prompts">Prompts</button>
@@ -212,7 +212,7 @@ function ingest(prompts, config) {
   state.config = config || {};
   state.languages = promptsToLanguages(prompts || []);
   state.models = modelsToRows(state.config);
-  $("subtitle").textContent = (state.config.experiment || "mindbench-api-search-audit")
+  $("subtitle").textContent = (state.config.experiment || "search-source-audit")
     + (state.served ? " · editing repo files in place" : " · read-only (file mode)");
   fillConfig();
   renderModels();

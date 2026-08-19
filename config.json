@@ -1,5 +1,5 @@
 {
-  "experiment": "mindbench-api-search-audit",
+  "experiment": "search-source-audit",
   "dataset": "2026-07-23_mental-health-information-gatekeepers",
   "config_version": "1.0.0",
   "description": "Which external sources do search-enabled LLM APIs surface for a given set of questions?",
