@@ -92,3 +92,28 @@ gitignored; `RESULTS.md` is the tracked inventory (counts and checksums) and
 Model slugs were checked on 2026-07-23 and will be retired by the providers
 eventually, at which point an exact rerun won't be possible. `config.json` and
 the run manifest record what was used.
+
+## HuggingFace dataset (API arm)
+
+The public dataset ([MindBench/search-source-audit](https://huggingface.co/datasets/MindBench/search-source-audit),
+DOI 10.57967/hf/10029) carries both audit arms. The product-arm tables are the
+hand-coded ground truth and are produced elsewhere; the API-arm tables derive
+from this study's raw responses.
+
+`hf_api_export.py` builds the corrected API-arm CSVs: it takes the
+as-uploaded tables plus this folder's `results/` and fixes three defects found
+in the 2026-08-19 reconciliation — the topic-slug drift that blanked
+`topic_category` for 8 of 20 topics (this instrument predated the product arm's
+final slugs; the product vocabulary is canonical), the missing Gemini in-text
+citation channel (243 sources, now marked by a `channel` column), and the
+inverted `resolved_url` semantics. `source_classifier.py` is a verbatim
+extraction of the product notebook's classifier so new rows are typed by
+exactly the instrument that typed the product arm.
+
+```bash
+python3 hf_api_export.py --released results/hf/released   # -> results/hf/corrected/
+```
+
+One definitional note: these tables count citation *occurrences* as presented
+(matching the product arm's coding), not deduplicated sources — so their totals
+sit above `sources.json`'s, which collapses repeats within a call.
