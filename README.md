@@ -142,6 +142,13 @@ It will then print a dollar table, and warn if the file is more than 90 days old
 undated, or missing an entry for a model you're running. Providers that report
 their own billed cost (Perplexity) are accurate with or without the file.
 
+The cost machinery has had limited real use — one full sweep and its pilots —
+so treat the estimate and the ceiling as aids, not guarantees. Check spend
+against the provider's own billing dashboard on anything expensive, and assume
+the first run against a new provider or model can surprise you: billing models
+change, and a fee the adapter doesn't know about is invisible to both the
+estimator and the ceiling.
+
 There are three ways to stop a running sweep:
 
 1. Ctrl-C. No new calls start; in-flight calls finish. Press it again to exit
