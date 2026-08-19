@@ -11,12 +11,9 @@ WHAT IT MEASURES. Which publisher domains search-enabled LLM APIs actually cite.
 The cube is model x language x domain, counting citations. The 2026-07-23 study
 is 3 models x 7 languages x 998 domains = 20,958 cells, ~80 KB packed.
 
-THIS IS THE FIRST AGGREGATE THIS REPO HAS EVER PRODUCED. RESULTS.md says so
-outright: "There is no aggregate rollup (domain x model x language counts); the
-numbers in the table above were computed ad hoc from sources.json and are not
-stored anywhere." Those numbers were retyped by hand into the platform's
-SourcesOfTruthPage, which goes stale silently whenever the study is re-run. This
-replaces that with something the platform can read.
+The cube is the study's aggregate rollup - the domain x model x language
+counts behind any headline number - in a shape the platform ingests directly,
+so downstream displays read the artifact rather than hand-copied constants.
 
 Standard library only, matching the rest of src/ — no third-party deps.
 """

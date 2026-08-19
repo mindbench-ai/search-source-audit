@@ -52,9 +52,10 @@ the move.
 
 `raw/*.jsonl` is one line per call with the complete provider response.
 `sources.json` is the normalized table — one row per call, carrying the full
-response text plus resolved sources and per-call counts. There is **no
-aggregate rollup** (domain x model x language counts); the numbers in the table
-above were computed ad hoc from `sources.json` and are not stored anywhere.
+response text plus resolved sources and per-call counts. Aggregates derive from
+these files on demand: `platform/export_platform_artifact.py` builds the
+model x language x domain citation cube, and `python3 -m analysis` prints the
+reported statistics.
 
 ## Where the bytes live
 
@@ -62,12 +63,11 @@ On disk in this working tree, at `results/`, with `data/<dataset>` kept as a
 symlink pointing here so the tool resolves paths exactly as before (resume,
 re-extraction, and the prompt-fingerprint guard all still work unchanged).
 
-They are **not** in git and **not** on any remote. As of 2026-08-06 this working
-tree is the only copy. That is a deliberate hold, not an oversight — see
-`.gitignore` for the reasoning and the one-line change that reverses it. The
-documented destination for result data of this kind is a Zenodo deposit with the
-DOI pointed to from here (`docs/repo-naming.csv` row 16); until that exists,
-back this folder up somewhere that is not this laptop.
+They are **not** in git. Derived citation tables are published in the
+HuggingFace dataset (see the study README); the raw responses in this folder
+have no other copy. Their destination is an archive deposit with a DOI pointed
+to from here; until that exists, keep a backup of this folder somewhere that
+is not one laptop.
 
 ## Reproducing
 
