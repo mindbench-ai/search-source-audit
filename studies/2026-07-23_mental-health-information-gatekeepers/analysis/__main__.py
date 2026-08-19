@@ -6,6 +6,7 @@ Usage (from the study directory):
 from __future__ import annotations
 
 import argparse
+import pathlib
 import statistics
 
 from .load import (COMMON_TOPICS, DEFAULT_API, DEFAULT_PRODUCT, DEFAULT_RAW,
@@ -15,9 +16,9 @@ from . import composition, crosslingual, domains, retrieval, volume
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--api", default=DEFAULT_API)
-    ap.add_argument("--product", default=DEFAULT_PRODUCT)
-    ap.add_argument("--raw", default=DEFAULT_RAW)
+    ap.add_argument("--api", type=pathlib.Path, default=DEFAULT_API)
+    ap.add_argument("--product", type=pathlib.Path, default=DEFAULT_PRODUCT)
+    ap.add_argument("--raw", type=pathlib.Path, default=DEFAULT_RAW)
     a = ap.parse_args()
 
     t = load_tables(a.api, a.product)
@@ -42,6 +43,14 @@ def main() -> int:
           f"  |  {model:16s} {volume.mean_citations(ar):5.1f} c/r, {volume.zero_citation(ar)[1]:4.1f}% no-cite")
     gpt_zero = [r for r in api_resp if r["model"] == "gpt-5.4-mini" and r["n_sources"] == 0]
     P(f"gpt-5.4-mini zero-citation responses, mean chars: {volume.mean_response_chars(gpt_zero):.1f}")
+    ne_src = [r for r in p_src if r["language"] != "en"]
+    P(f"product EN: {len(p_src_en):,} citations, {domains.distinct_domains(p_src_en):,} domains, "
+      f"{len(p_resp_en)} responses   non-EN: {len(ne_src):,} citations, "
+      f"{domains.distinct_domains(ne_src):,} domains, {len(p_resp) - len(p_resp_en)} responses")
+    for prov, label, _ in PAIRS:
+        xs = [r["n_sources"] for r in p_resp_en if r["provider"] == prov]
+        P(f"  {label:18s} EN mean {statistics.mean(xs):.2f}  SD {statistics.stdev(xs):.2f}  "
+          f"median {statistics.median(xs):.0f}")
     big = volume.largest(p_resp_en, 10)
     P("largest EN product responses: " + ", ".join(f"{r['provider']}/{r['topic_category']}" for r in big))
     for prov, label, _ in PAIRS[:1]:
